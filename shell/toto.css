@@ -142,6 +142,18 @@ html, body {
   min-height: 0;
 }
 
+/* ── skin output — messages/chat area ───────────── */
+.skin-out {
+  flex: 999 1 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ── skin kbd — input dock, fills freed resize space  */
+.skin-kbd {
+  flex: 1 0 auto;
+}
+
 /* ── card header row ─────────────────────────────── */
 .ph-row1 {
   min-height: 44px; display: flex; align-items: center;

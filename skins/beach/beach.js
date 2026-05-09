@@ -25,7 +25,7 @@
     <button class="bot-stop" id="beach-stop" style="display:none">⏹</button>
   </div>
   <div class="pb">
-    <div id="beach-msgs"></div>
+    <div id="beach-msgs" class="skin-out"></div>
     <div id="beach-wave">
       <svg width="100%" height="100%" viewBox="0 0 400 28" preserveAspectRatio="none">
         <rect x="0" y="14" width="400" height="14" fill="#0f2e48"/>
@@ -33,7 +33,7 @@
         <path d="M0 14 Q30 4 60 14 Q90 24 120 12 Q150 2 180 12 Q210 22 240 10 Q270 0 300 12 Q330 22 360 10 Q385 2 400 10" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
     </div>
-    <div id="beach-floor" onclick="event.stopPropagation()">
+    <div id="beach-floor" class="skin-kbd" onclick="event.stopPropagation()">
       <div id="beach-ball-toggle" title="open keyboard">
         <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
           <circle cx="22" cy="22" r="20" fill="white"/>

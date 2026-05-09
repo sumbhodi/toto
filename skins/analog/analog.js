@@ -44,7 +44,7 @@
   <div class="analog-teeth"></div>
 
   <!-- green-bar printer output -->
-  <div class="analog-printer" id="analog-msgs"></div>
+  <div class="analog-printer skin-out" id="analog-msgs"></div>
 
   <!-- vacuum tube row — drag to resize -->
   <div class="analog-tubes" id="analog-tubes" title="drag to resize">
@@ -54,7 +54,7 @@
   </div>
 
   <!-- dock: [stack] [slot INPUT] [center] [slot OUTPUT] [stack] -->
-  <div class="analog-dock" id="analog-dock">
+  <div class="analog-dock skin-kbd" id="analog-dock">
 
     <!-- left stack — click to open input -->
     <div class="analog-dock-left" id="analog-dock-left" title="open keyboard">

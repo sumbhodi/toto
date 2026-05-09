@@ -28,9 +28,9 @@
     <button class="bot-stop" id="neo-stop" style="display:none">⏹</button>
   </div>
   <div class="neo-pb">
-    <div class="neo-out" id="neo-out"></div>
+    <div class="neo-out skin-out" id="neo-out"></div>
     <div class="panel-resize-h" id="neo-resize" title="drag to resize"></div>
-    <div class="neo-kbd-bar" id="neo-kbd">
+    <div class="neo-kbd-bar skin-kbd" id="neo-kbd">
       <div class="neo-kbd-inner">
         <div class="neo-kbd-toggle" id="neo-kbd-toggle" title="keyboard">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
