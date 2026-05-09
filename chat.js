@@ -182,6 +182,7 @@ const toto = (() => {
       await streamAnthropic(auth.key, model, [{ role: 'user', content: prompt }], sys, c => text += c, ctrl.signal);
     } else {
       const url = auth.tier === 'github'  ? 'https://models.inference.ai.azure.com/chat/completions'
+                : auth.tier === 'hf'      ? '/v1/chat/completions'
                 : auth.tier === 'local'   ? auth.url.replace(/\/$/, '') + '/v1/chat/completions'
                 :                           'https://api.openai.com/v1/chat/completions';
       await streamOpenAI(url, auth.key || '', model, [{ role: 'user', content: prompt }], sys, c => text += c, ctrl.signal);
@@ -198,7 +199,7 @@ const toto = (() => {
 
     const auth = settings.getAuth();
     const model = settings.getModel();
-    if (!auth.key && auth.tier !== 'local') {
+    if (!auth.key && auth.tier !== 'local' && auth.tier !== 'hf') {
       appendMsg('assistant', '[No API key — open ⚙️ settings and add one.]');
       return;
     }
@@ -225,12 +226,13 @@ const toto = (() => {
       const onChunk = chunk => { botText += chunk; updateLastMsg(botDiv, botText); };
 
       if (auth.tier === 'anthropic') {
-        await streamAnthropic(auth.key, model, _history.slice(0, -1), sys, onChunk, _controller.signal);
+        await streamAnthropic(auth.key, model, _history, sys, onChunk, _controller.signal);
       } else {
         const url = auth.tier === 'github'  ? 'https://models.inference.ai.azure.com/chat/completions'
+                  : auth.tier === 'hf'      ? '/v1/chat/completions'
                   : auth.tier === 'local'   ? auth.url.replace(/\/$/, '') + '/v1/chat/completions'
                   :                           'https://api.openai.com/v1/chat/completions';
-        await streamOpenAI(url, auth.key || '', model, _history.slice(0, -1), sys, onChunk, _controller.signal);
+        await streamOpenAI(url, auth.key || '', model, _history, sys, onChunk, _controller.signal);
       }
 
       _history.push({ role: 'assistant', content: botText });

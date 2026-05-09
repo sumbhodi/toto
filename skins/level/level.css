@@ -1,0 +1,107 @@
+/* level.css — spirit level skin */
+
+.p-level {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid rgba(80,42,8,.35);
+  box-shadow: 0 6px 24px rgba(0,0,0,.55);
+}
+
+/* header */
+.p-level .ph {
+  background: url('level.png') center / 100% 100% no-repeat;
+  min-height: 44px;
+  flex-shrink: 0;
+}
+.p-level .ph-title {
+  font-family: 'Caveat', cursive;
+  color: #6a3808;
+}
+
+/* level icon */
+.lv-icon {
+  width: 28px; height: 14px; flex-shrink: 0;
+  background: linear-gradient(180deg, #d09050 0%, #985c18 55%, #c07838 100%);
+  border-radius: 7px;
+  border: 1.5px solid #6a3808;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,120,0.35);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.lv-icon::before {
+  content: '';
+  width: 16px; height: 9px;
+  border: 1px solid rgba(200,170,60,0.45);
+  border-radius: 5px;
+  background: rgba(100,140,20,0.1);
+  position: absolute;
+}
+.lv-icon::after {
+  content: '';
+  width: 7px; height: 7px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #ffe060, #b08010);
+  border: 1px solid rgba(140,100,0,0.6);
+  box-shadow: 0 0 4px rgba(220,180,40,0.5);
+  position: absolute;
+}
+
+/* body */
+.lv-body {
+  display: flex; flex-direction: column;
+  flex: 1; min-height: 0;
+  background: rgba(6,2,0,.97);
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-image: url('vert.png') 12 stretch;
+}
+
+/* output */
+.lv-out {
+  flex: 1; min-height: 0;
+  overflow-y: auto; padding: 6px 12px;
+  background: rgba(6,2,0,.97);
+  font-family: 'Caveat', cursive; font-size: 28px;
+  line-height: 1.5; color: #d4b87a;
+}
+.lv-out::-webkit-scrollbar { width: 3px; }
+.lv-out::-webkit-scrollbar-thumb { background: rgba(160,100,30,.3); border-radius: 2px; }
+.p-level .oz-msg-u   { color: #a87840; display: block; margin-bottom: 1px; }
+.p-level .oz-msg-bot { color: #d4b87a; display: block; margin-bottom: 4px; }
+.p-level .oz-msg-u::before   { content: '~ '; opacity: 0.6; }
+.p-level .oz-msg-bot::before { content: '= '; opacity: 0.4; }
+
+/* resize handle (visual only) */
+.lv-resize-h {
+  height: 30px; flex-shrink: 0;
+  background: url('horizon.png') no-repeat center / 100% 100%;
+  border-top: 1px solid rgba(80,40,10,.5);
+}
+
+/* floor */
+.lv-floor {
+  display: flex; flex-shrink: 0;
+  background: rgba(6,2,0,.97);
+  border-top: 1px solid rgba(100,55,15,.5);
+}
+.lv-input {
+  flex: 1; height: 160px; background: transparent; color: #d4b87a;
+  border: none; outline: none;
+  font-family: 'Caveat', cursive; font-size: 28px;
+  padding: 5px 12px; resize: none; line-height: 1.4; overflow-y: auto;
+}
+.lv-input::placeholder { color: rgba(180,120,40,.25); }
+.lv-send {
+  font-family: 'Bebas Neue', cursive; font-size: 16px; letter-spacing: .08em;
+  background: rgba(40,18,4,.8); border: none;
+  border-left: 1px solid rgba(100,55,15,.4);
+  color: rgba(200,145,55,.85); padding: 0 18px; cursor: pointer;
+}
+.lv-send:hover { background: rgba(90,42,10,.9); color: #e8c060; }
+
+/* plank */
+.lv-plank {
+  height: 12px; flex-shrink: 0;
+  background: url('horizon.png') no-repeat center / 100% 100%;
+}

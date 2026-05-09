@@ -6,22 +6,24 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-HF_TOKEN   = os.environ.get('HF_TOKEN', '')
-HF_BASE    = 'https://api-inference.huggingface.co/models'
-DEFAULT_MODEL = 'mistralai/Mistral-7B-Instruct-v0.3'
+HF_TOKEN      = os.environ.get('HF_TOKEN', '')
+HF_API        = 'https://router.huggingface.co/v1/chat/completions'
+DEFAULT_MODEL = 'meta-llama/Llama-3.1-8B-Instruct'
 
 @app.post('/v1/chat/completions')
 async def proxy(request: Request):
     body = await request.body()
     try:
-        model = json.loads(body).get('model', DEFAULT_MODEL)
+        parsed = json.loads(body)
+        if not parsed.get('model'):
+            parsed['model'] = DEFAULT_MODEL
+            body = json.dumps(parsed).encode()
     except Exception:
-        model = DEFAULT_MODEL
-    hf_url = f'{HF_BASE}/{model}/v1/chat/completions'
+        pass
 
     async def stream():
         async with httpx.AsyncClient(timeout=120) as client:
-            async with client.stream('POST', hf_url,
+            async with client.stream('POST', HF_API,
                 content=body,
                 headers={
                     'Authorization': f'Bearer {HF_TOKEN}',
