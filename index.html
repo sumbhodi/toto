@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>toto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shell/toto.css">
+  <style>
+    body { display: flex; flex-direction: column; height: 100vh; }
+  </style>
+</head>
+<body>
+
+<div id="toto-bar">
+  <span id="toto-wordmark">toto</span>
+  <button class="toto-bar-btn" id="btn-clip" title="Attach file (injected into next message)"
+    onclick="settings.attachFile()">📎</button>
+  <button class="toto-bar-btn" id="btn-compress" title="Compress history"
+    onclick="toto.compressHistory()">🗜️</button>
+  <button class="toto-bar-btn" id="btn-gear" title="Settings"
+    onclick="settings.toggle()">⚙️</button>
+</div>
+
+<div id="skin-mount"></div>
+
+<div id="settings-drawer"></div>
+
+<script src="models.js"></script>
+<script src="chat.js"></script>
+<script src="settings.js"></script>
+<script>
+  window._totoClip = '';
+  settings.init();
+</script>
+</body>
+</html>
