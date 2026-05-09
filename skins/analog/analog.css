@@ -39,6 +39,7 @@
 
 /* green-bar printer paper */
 .analog-printer {
+  flex: 999 1 0;
   background-color: #F0EBD4;
   background-image:
     repeating-linear-gradient(180deg, transparent 0px, transparent 9px, rgba(0,0,0,0.18) 9px, rgba(0,0,0,0.18) 16px),
@@ -118,6 +119,7 @@
 .analog-dock {
   display: flex;
   align-items: stretch;
+  flex: 1 0 72px;
   min-height: 72px;
   background: linear-gradient(180deg, #2A2218 0%, #1E1A12 100%);
   border-top: 1px solid #160E08;

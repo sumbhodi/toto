@@ -144,7 +144,6 @@ html, body {
 
 /* ── skin output — messages/chat area ───────────── */
 .skin-out {
-  flex: 999 1 0;
   min-height: 0;
   overflow-y: auto;
 }
