@@ -293,6 +293,42 @@ const toto = (() => {
     setJewel('off');
   }
 
-  return { mount, setJewel, appendMsg, updateLastMsg, compressHistory,
+  // ── mountResize — shared slider resize utility ─────────────────────────────
+  // sliderId: the drag handle element id
+  // topId:    the output/messages element id (height controlled by drag)
+  // minTop:   minimum px for top element   (default 60)
+  // minBottom:minimum px for bottom element (default 60)
+  function mountResize({ sliderId, topId, minTop = 60, minBottom = 60 }) {
+    const sliderEl = document.getElementById(sliderId);
+    const topEl    = document.getElementById(topId);
+    if (!sliderEl || !topEl) return;
+
+    sliderEl.addEventListener('pointerdown', e => {
+      const startY = e.clientY;
+      const startH = topEl.getBoundingClientRect().height;
+      topEl.style.flex      = 'none';
+      topEl.style.minHeight = '0';
+      topEl.style.height    = startH + 'px';
+      sliderEl.setPointerCapture(e.pointerId);
+
+      sliderEl.onpointermove = mv => {
+        const container  = sliderEl.parentElement;
+        const containerH = container.getBoundingClientRect().height;
+        const header     = container.querySelector('.ph');
+        const headerH    = header ? header.getBoundingClientRect().height : 0;
+        const sliderH    = sliderEl.getBoundingClientRect().height;
+        const maxH       = containerH - headerH - sliderH - minBottom;
+        topEl.style.height = Math.max(minTop, Math.min(maxH, startH + (mv.clientY - startY))) + 'px';
+      };
+
+      sliderEl.onpointerup = () => {
+        sliderEl.onpointermove = null;
+        sliderEl.onpointerup   = null;
+      };
+      e.preventDefault();
+    });
+  }
+
+  return { mount, mountResize, setJewel, appendMsg, updateLastMsg, compressHistory,
            send: doSend, clearHistory: () => { _history = []; saveHistory(); } };
 })();

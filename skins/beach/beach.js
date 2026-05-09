@@ -40,6 +40,8 @@
   </div>
 </div>`;
 
+  toto.mountResize({ sliderId: 'beach-wave', topId: 'beach-msgs', minTop: 60, minBottom: 60 });
+
   toto.mount({
     skinId:  'beach',
     cardId:  'beach-card',

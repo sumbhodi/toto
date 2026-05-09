@@ -15,7 +15,7 @@
     </div>
     <button class="bot-stop" id="historian-stop" style="display:none">⏹</button>
   </div>
-  <div class="hist-book-wrap">
+  <div class="hist-book-wrap" id="hist-book-wrap">
     <img class="hist-top-img" src="skins/historian/historian-top.png" alt="">
     <div id="hist-msgs" class="hist-msgs"></div>
   </div>
@@ -32,25 +32,8 @@
   </div>
 </div>`;
 
-  // slider — pointer capture keeps events locked to slider through full drag
-  const sliderEl = document.getElementById('hist-slider');
-  sliderEl.addEventListener('pointerdown', e => {
-    const wrap = document.querySelector('.hist-book-wrap');
-    const startY = e.clientY;
-    const startH = wrap.getBoundingClientRect().height;
-    wrap.style.flex = 'none';
-    wrap.style.minHeight = '0';
-    wrap.style.height = startH + 'px';
-    sliderEl.setPointerCapture(e.pointerId);
-    sliderEl.onpointermove = mv => {
-      wrap.style.height = Math.max(60, startH + (mv.clientY - startY)) + 'px';
-    };
-    sliderEl.onpointerup = () => {
-      sliderEl.onpointermove = null;
-      sliderEl.onpointerup = null;
-    };
-    e.preventDefault();
-  });
+  // slider resize
+  toto.mountResize({ sliderId: 'hist-slider', topId: 'hist-book-wrap', minTop: 60, minBottom: 120 });
 
   // talk button toggles input area
   document.getElementById('hbw-talk').addEventListener('click', () => {

@@ -29,6 +29,7 @@
   </div>
   <div class="neo-pb">
     <div class="neo-out" id="neo-out"></div>
+    <div class="panel-resize-h" id="neo-resize" title="drag to resize"></div>
     <div class="neo-kbd-bar" id="neo-kbd">
       <div class="neo-kbd-inner">
         <div class="neo-kbd-toggle" id="neo-kbd-toggle" title="keyboard">
@@ -49,6 +50,8 @@
     </div>
   </div>
 </div>`;
+
+  toto.mountResize({ sliderId: 'neo-resize', topId: 'neo-out', minTop: 60, minBottom: 56 });
 
   document.getElementById('neo-kbd-toggle').addEventListener('click', () => {
     const kbd = document.getElementById('neo-kbd');
