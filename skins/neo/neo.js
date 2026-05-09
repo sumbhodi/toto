@@ -33,7 +33,7 @@
     <div class="neo-kbd-bar" id="neo-kbd">
       <div class="neo-kbd-inner">
         <div class="neo-kbd-toggle" id="neo-kbd-toggle" title="keyboard">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
             <rect x="2" y="6" width="20" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
             <line x1="6" y1="10.5" x2="6" y2="10.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
             <line x1="10" y1="10.5" x2="10" y2="10.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
@@ -42,7 +42,7 @@
             <line x1="7" y1="14.5" x2="17" y2="14.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
           </svg>
         </div>
-        <div class="neo-kbd-input-wrap" onclick="event.stopPropagation()">
+        <div class="neo-kbd-input-wrap" id="neo-kbd-input-wrap" style="display:none" onclick="event.stopPropagation()">
           <textarea id="neo-input" class="bot-input neo-input" rows="1" placeholder="> type here..."></textarea>
           <button id="neo-send" class="bot-send neo-send">send</button>
         </div>
@@ -52,17 +52,7 @@
 </div>`;
 
   toto.mountResize({ sliderId: 'neo-resize', topId: 'neo-out', minTop: 60, minBottom: 56 });
-
-  document.getElementById('neo-kbd-toggle').addEventListener('click', () => {
-    const kbd = document.getElementById('neo-kbd');
-    kbd.classList.toggle('open');
-    if (kbd.classList.contains('open')) document.getElementById('neo-input').focus();
-  });
-
-  document.addEventListener('keydown', e => {
-    const kbd = document.getElementById('neo-kbd');
-    if (kbd?.classList.contains('open') && e.key === 'Escape') kbd.classList.remove('open');
-  });
+  toto.mountToggle({ toggleId: 'neo-kbd-toggle', inputWrapId: 'neo-kbd-input-wrap', focusId: 'neo-input' });
 
   toto.mount({
     skinId:  'neo',

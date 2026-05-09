@@ -150,7 +150,8 @@ html, body {
 /* ── shared bot input ────────────────────────────── */
 .bot-input {
   flex: 1;
-  height: calc(6em + 12px);
+  min-height: calc(3em + 12px);
+  align-self: stretch;
   background: transparent; border: none; outline: none;
   color: inherit; resize: none; overflow-y: auto;
   font-size: var(--fs-body); font-family: inherit;

@@ -293,6 +293,31 @@ const toto = (() => {
     setJewel('off');
   }
 
+  // ── mountToggle — shared input reveal utility ──────────────────────────────
+  // toggleId:    the button/icon element id
+  // inputWrapId: the element to show/hide
+  // focusId:     optional — element to focus when opened
+  // displayValue: css display value when open (default 'flex', use 'block' for absolute panels)
+  function mountToggle({ toggleId, inputWrapId, focusId, displayValue = 'flex' }) {
+    const toggleEl  = document.getElementById(toggleId);
+    const inputWrap = document.getElementById(inputWrapId);
+    if (!toggleEl || !inputWrap) return;
+
+    toggleEl.addEventListener('click', () => {
+      const isOpen = inputWrap.style.display !== 'none';
+      inputWrap.style.display = isOpen ? 'none' : displayValue;
+      if (!isOpen && focusId) {
+        const el = document.getElementById(focusId);
+        if (el) el.focus();
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && inputWrap.style.display !== 'none')
+        inputWrap.style.display = 'none';
+    });
+  }
+
   // ── mountResize — shared slider resize utility ─────────────────────────────
   // sliderId: the drag handle element id
   // topId:    the output/messages element id (height controlled by drag)
@@ -329,6 +354,6 @@ const toto = (() => {
     });
   }
 
-  return { mount, mountResize, setJewel, appendMsg, updateLastMsg, compressHistory,
+  return { mount, mountResize, mountToggle, setJewel, appendMsg, updateLastMsg, compressHistory,
            send: doSend, clearHistory: () => { _history = []; saveHistory(); } };
 })();

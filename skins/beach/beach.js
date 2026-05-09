@@ -34,13 +34,30 @@
       </svg>
     </div>
     <div id="beach-floor" onclick="event.stopPropagation()">
-      <textarea id="beach-input" class="bot-input" placeholder="talk to dolphin…" spellcheck="false"></textarea>
-      <button id="beach-send" class="bot-send">send</button>
+      <div id="beach-ball-toggle" title="open keyboard">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="20" fill="white"/>
+          <path d="M22 22 L22 2 A20 20 0 0 1 36.14 7.86 Z" fill="#C8A8E8"/>
+          <path d="M22 22 L36.14 7.86 A20 20 0 0 1 42 22 Z" fill="white"/>
+          <path d="M22 22 L42 22 A20 20 0 0 1 36.14 36.14 Z" fill="#C8A8E8"/>
+          <path d="M22 22 L36.14 36.14 A20 20 0 0 1 22 42 Z" fill="white"/>
+          <path d="M22 22 L22 42 A20 20 0 0 1 7.86 36.14 Z" fill="#C8A8E8"/>
+          <path d="M22 22 L7.86 36.14 A20 20 0 0 1 2 22 Z" fill="white"/>
+          <path d="M22 22 L2 22 A20 20 0 0 1 7.86 7.86 Z" fill="#C8A8E8"/>
+          <path d="M22 22 L7.86 7.86 A20 20 0 0 1 22 2 Z" fill="white"/>
+          <circle cx="22" cy="22" r="20" stroke="rgba(150,100,200,0.2)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div id="beach-input-wrap" style="display:none">
+        <textarea id="beach-input" class="bot-input" placeholder="talk to dolphin…" spellcheck="false"></textarea>
+        <button id="beach-send" class="bot-send">send</button>
+      </div>
     </div>
   </div>
 </div>`;
 
   toto.mountResize({ sliderId: 'beach-wave', topId: 'beach-msgs', minTop: 60, minBottom: 60 });
+  toto.mountToggle({ toggleId: 'beach-ball-toggle', inputWrapId: 'beach-input-wrap', focusId: 'beach-input' });
 
   toto.mount({
     skinId:  'beach',

@@ -35,13 +35,7 @@
   // slider resize
   toto.mountResize({ sliderId: 'hist-slider', topId: 'hist-book-wrap', minTop: 60, minBottom: 120 });
 
-  // talk button toggles input area
-  document.getElementById('hbw-talk').addEventListener('click', () => {
-    const bottom = document.getElementById('hist-bottom');
-    const open = bottom.style.display !== 'none';
-    bottom.style.display = open ? 'none' : 'block';
-    if (!open) document.getElementById('hist-input').focus();
-  });
+  toto.mountToggle({ toggleId: 'hbw-talk', inputWrapId: 'hist-bottom', focusId: 'hist-input', displayValue: 'block' });
 
   toto.mount({
     skinId:  'historian',
