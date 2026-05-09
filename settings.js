@@ -66,7 +66,7 @@ const settings = (() => {
     const onHF  = window.location.hostname.endsWith('.hf.space');
     const tier  = onHF ? 'hf' : (get('authTier') || 'github');
     const skin  = get('skin') || 'beach';
-    const skins = ['beach','neo','analog','radio','historian','phone','level'];
+    const skins = ['beach','neo','analog','historian','phone'];
     const hfModelId = get('hfModel') || MODELS.hf[0]?.id || '';
     const modelId   = onHF ? hfModelId : getModel();
     const tierModels = onHF ? MODELS.hf : (MODELS[tier] || []);

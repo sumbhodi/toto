@@ -3,6 +3,15 @@
   const mount = document.getElementById('skin-mount');
   if (!mount) return;
 
+  // build 9 vacuum tubes
+  const tubeHTML = Array.from({length:9}, (_,i) =>
+    `<div class="ctube" id="analog-ct${i}">
+      <div class="ct-glass"><div class="ct-glow"></div></div>
+      <div class="ct-base"></div>
+      <div class="ct-pins"><div class="ct-pin"></div><div class="ct-pin"></div><div class="ct-pin"></div></div>
+    </div>`
+  ).join('');
+
   mount.innerHTML = `
 <div id="analog-card" class="p-analog">
   <div class="ph ph-row1" id="analog-ph">
@@ -28,13 +37,110 @@
     </div>
     <button class="bot-stop" id="analog-stop" style="display:none">⏹</button>
   </div>
+
+  <!-- spool fade teeth -->
   <div class="analog-teeth"></div>
+
+  <!-- green-bar printer output -->
   <div class="analog-printer" id="analog-msgs"></div>
-  <div class="analog-dock" onclick="event.stopPropagation()">
-    <textarea id="analog-input" class="bot-input analog-input" placeholder="submit job…"></textarea>
-    <button id="analog-send" class="bot-send analog-send">RUN</button>
+
+  <!-- vacuum tube row — drag to resize -->
+  <div class="analog-tubes" id="analog-tubes" title="drag to resize">
+    <span class="analog-resize-arr">↕</span>
+    ${tubeHTML}
+    <span class="analog-resize-arr">↕</span>
+  </div>
+
+  <!-- dock: [stack] [slot INPUT] [center] [slot OUTPUT] [stack] -->
+  <div class="analog-dock" id="analog-dock">
+
+    <!-- left stack — click to open input -->
+    <div class="analog-dock-left" id="analog-dock-left" title="open keyboard">
+      <div class="analog-stack">
+        <div class="astack-card"></div>
+        <div class="astack-card"></div>
+        <div class="astack-card"></div>
+      </div>
+    </div>
+
+    <!-- inner zone -->
+    <div class="analog-dock-inner">
+
+      <!-- INPUT slot -->
+      <div class="analog-dock-slot analog-slot-left">
+        <div class="acard-slot">
+          <div class="acard-slot-lip"></div>
+          <div class="acard-slot-opening"></div>
+          <div class="acard-slot-lip"></div>
+        </div>
+        <span class="aslot-label">INPUT</span>
+      </div>
+
+      <!-- center: porthole + speaker + porthole -->
+      <div class="analog-dock-center" id="analog-dock-center">
+        <div class="analog-porthole">
+          <svg viewBox="0 0 80 80"><path class="aosc-trace" d="M0,40 Q20,20 40,40 Q60,60 80,40"/></svg>
+          <span class="aosc-lbl">T/s</span>
+        </div>
+        <div class="analog-speaker">
+          <div class="analog-grille"><div class="analog-speaker-center"></div></div>
+        </div>
+        <div class="analog-porthole">
+          <svg viewBox="0 0 80 80"><path class="aosc-trace" d="M0,40 Q20,55 40,40 Q60,25 80,40"/></svg>
+          <span class="aosc-lbl">LOAD</span>
+        </div>
+      </div>
+
+      <!-- OUTPUT slot -->
+      <div class="analog-dock-slot analog-slot-right">
+        <div class="acard-slot">
+          <div class="acard-slot-lip"></div>
+          <div class="acard-slot-opening"></div>
+          <div class="acard-slot-lip"></div>
+        </div>
+        <span class="aslot-label">OUTPUT</span>
+      </div>
+
+      <!-- input overlay — covers inner zone when open -->
+      <div class="analog-input-wrap" id="analog-input-wrap" onclick="event.stopPropagation()">
+        <textarea id="analog-input" class="bot-input analog-input" placeholder="submit job…"></textarea>
+        <button id="analog-send" class="bot-send analog-send">RUN</button>
+      </div>
+
+    </div><!-- /inner -->
+
+    <!-- right stack -->
+    <div class="analog-dock-right">
+      <div class="analog-stack">
+        <div class="astack-card"></div>
+        <div class="astack-card"></div>
+      </div>
+    </div>
+
   </div>
 </div>`;
+
+  toto.mountResize({ sliderId: 'analog-tubes', topId: 'analog-msgs', minTop: 80, minBottom: 80 });
+
+  // toggle: left stack opens input wrap + dock class for CSS hide of center/slots
+  const dockLeft  = document.getElementById('analog-dock-left');
+  const dock      = document.getElementById('analog-dock');
+  const inputWrap = document.getElementById('analog-input-wrap');
+  const inputEl   = document.getElementById('analog-input');
+  if (dockLeft && dock && inputWrap) {
+    dockLeft.addEventListener('click', () => {
+      const isOpen = dock.classList.contains('open');
+      dock.classList.toggle('open', !isOpen);
+      inputWrap.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen && inputEl) inputEl.focus();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && dock.classList.contains('open')) {
+        dock.classList.remove('open');
+        inputWrap.style.display = 'none';
+      }
+    });
+  }
 
   toto.mount({
     skinId:  'analog',
