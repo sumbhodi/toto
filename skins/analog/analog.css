@@ -3,6 +3,7 @@
 .p-analog {
   display: flex;
   flex-direction: column;
+  flex: 1;
   height: 100%;
   background: linear-gradient(180deg, #6A7060 0%, #5C6452 40%, #626858 100%);
   border: 1px solid #2A3020;
@@ -235,16 +236,18 @@
   background: radial-gradient(circle at 35% 35%, #8A9870, #3A4A2A);
 }
 
-/* input overlay — hidden by default, fills inner zone when open */
+/* input wrap — hidden by default, becomes flex:1 when open */
 .analog-input-wrap {
   display: none;
-  position: absolute; inset: 0;
+  flex: 1;
   align-items: stretch;
   padding: 6px 8px;
   gap: 8px;
   background: linear-gradient(180deg, #181410 0%, #120E08 100%);
 }
 .analog-dock.open .analog-input-wrap { display: flex; }
+.analog-dock.open .analog-dock-center,
+.analog-dock.open .analog-dock-slot  { display: none; }
 
 .analog-input {
   flex: 1;
