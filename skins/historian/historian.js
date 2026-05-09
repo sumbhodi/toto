@@ -1,0 +1,71 @@
+// historian.js — book / archive skin
+(function historianMount() {
+  const mount = document.getElementById('skin-mount');
+  if (!mount) return;
+
+  mount.innerHTML = `
+<div id="hist-card" class="p-hist">
+  <div class="ph ph-row1">
+    <span class="oz-model-icon" style="font-size:22px;line-height:1;display:flex;align-items:center">📜</span>
+    <span class="ph-title" style="font-family:'Georgia',serif;color:#c8b890">historian</span>
+    <div class="coder-jewels">
+      <div class="coder-jewel cj-r" id="historian-jsr"></div>
+      <div class="coder-jewel cj-a" id="historian-jsa"></div>
+      <div class="coder-jewel cj-g" id="historian-jsg"></div>
+    </div>
+    <button class="bot-stop" id="historian-stop" style="display:none">⏹</button>
+  </div>
+  <div class="hist-book-wrap">
+    <img class="hist-top-img" src="skins/historian/historian-top.png" alt="">
+    <div id="hist-msgs" class="hist-msgs"></div>
+  </div>
+  <div class="hist-slider" id="hist-slider">
+    <img class="hist-slider-img" src="skins/historian/historian-slider.png" alt="" draggable="false">
+  </div>
+  <div class="hist-buttons-wrap">
+    <img class="hist-buttons-img" src="skins/historian/historian-buttons-off.png" alt="">
+    <div class="hbw-talk" id="hbw-talk" title="talk"></div>
+    <div class="hbw-send" id="hist-send" title="send"></div>
+    <div class="hist-bottom" id="hist-bottom" style="display:none">
+      <textarea id="hist-input" class="hist-textarea" placeholder="ask the historian..."></textarea>
+    </div>
+  </div>
+</div>`;
+
+  // slider — pointer capture keeps events locked to slider through full drag
+  const sliderEl = document.getElementById('hist-slider');
+  sliderEl.addEventListener('pointerdown', e => {
+    const wrap = document.querySelector('.hist-book-wrap');
+    const startY = e.clientY;
+    const startH = wrap.getBoundingClientRect().height;
+    wrap.style.flex = 'none';
+    wrap.style.minHeight = '0';
+    wrap.style.height = startH + 'px';
+    sliderEl.setPointerCapture(e.pointerId);
+    sliderEl.onpointermove = mv => {
+      wrap.style.height = Math.max(60, startH + (mv.clientY - startY)) + 'px';
+    };
+    sliderEl.onpointerup = () => {
+      sliderEl.onpointermove = null;
+      sliderEl.onpointerup = null;
+    };
+    e.preventDefault();
+  });
+
+  // talk button toggles input area
+  document.getElementById('hbw-talk').addEventListener('click', () => {
+    const bottom = document.getElementById('hist-bottom');
+    const open = bottom.style.display !== 'none';
+    bottom.style.display = open ? 'none' : 'block';
+    if (!open) document.getElementById('hist-input').focus();
+  });
+
+  toto.mount({
+    skinId:  'historian',
+    cardId:  'hist-card',
+    msgsId:  'hist-msgs',
+    inputId: 'hist-input',
+    sendId:  'hist-send',
+    stopId:  'historian-stop',
+  });
+})();
