@@ -49,11 +49,26 @@ html, body {
 .toto-bar-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
 .toto-bar-btn.active { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.1); }
 
-/* ── skin mount ──────────────────────────────────── */
+/* ── card frame + edge resize ────────────────────── */
+#card-frame {
+  flex: 1; overflow: hidden;
+  display: flex; flex-direction: row;
+  margin: 0 auto;       /* center when narrowed */
+  width: 100%;          /* default: full width */
+  max-width: 100%;
+  position: relative;
+}
 #skin-mount {
   flex: 1; overflow: hidden;
   display: flex; flex-direction: column;
 }
+.edge-handle {
+  width: 10px; flex-shrink: 0;
+  cursor: ew-resize;
+  background: transparent;
+  transition: background 0.15s;
+}
+.edge-handle:hover { background: rgba(255,255,255,0.06); }
 
 /* ── settings drawer ─────────────────────────────── */
 #settings-drawer {
@@ -91,6 +106,18 @@ html, body {
 }
 .sg-hint { font-size: 15px; color: rgba(255,255,255,0.3); }
 .sg-sep { border-top: 1px solid rgba(255,255,255,0.06); margin: 10px 0; }
+.sg-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.sg-preset {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6); border-radius: 4px;
+  padding: 4px 10px; cursor: pointer; font-size: var(--fs-tab);
+}
+.sg-preset:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.sg-discover {
+  background: none; border: none; color: rgba(255,255,255,0.4);
+  cursor: pointer; font-size: 14px; margin-left: 6px;
+}
+.sg-discover:hover { color: rgba(255,255,255,0.8); }
 .sg-btn-danger {
   background: rgba(180,40,40,0.25); border: 1px solid rgba(200,60,60,0.4);
   color: rgba(255,120,120,0.8); border-radius: 5px;

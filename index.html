@@ -24,7 +24,11 @@
     onclick="settings.toggle()">⚙️</button>
 </div>
 
-<div id="skin-mount"></div>
+<div id="card-frame">
+  <div id="edge-left"  class="edge-handle"></div>
+  <div id="skin-mount"></div>
+  <div id="edge-right" class="edge-handle"></div>
+</div>
 
 <div id="settings-drawer"></div>
 
@@ -34,6 +38,30 @@
 <script>
   window._totoClip = '';
   settings.init();
+
+  // ── edge resize ────────────────────────────────────────────────────────────
+  (function() {
+    const frame = document.getElementById('card-frame');
+    function startResize(e, side) {
+      e.preventDefault();
+      const startX = e.clientX, startW = frame.offsetWidth;
+      const onMove = e => {
+        const dx = e.clientX - startX;
+        const newW = Math.max(320, Math.min(window.innerWidth, side === 'right' ? startW + dx : startW - dx));
+        frame.style.width = newW + 'px';
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
+    document.getElementById('edge-left') .addEventListener('mousedown', e => startResize(e, 'left'));
+    document.getElementById('edge-right').addEventListener('mousedown', e => startResize(e, 'right'));
+    document.getElementById('edge-right').addEventListener('dblclick', () => { frame.style.width = ''; });
+    document.getElementById('edge-left') .addEventListener('dblclick', () => { frame.style.width = ''; });
+  })();
 </script>
 </body>
 </html>

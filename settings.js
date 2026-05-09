@@ -13,8 +13,8 @@ const settings = (() => {
 
   function getAuth() {
     const tier = get('authTier') || 'github';
-    const keyMap = { github: get('githubPat'), anthropic: get('anthropicKey'), openai: get('openaiKey'), ollama: '' };
-    return { tier, key: keyMap[tier] || '', url: get('ollamaUrl') || 'http://localhost:11434' };
+    const keyMap = { github: get('githubPat'), anthropic: get('anthropicKey'), openai: get('openaiKey'), local: '' };
+    return { tier, key: keyMap[tier] || '', url: get('localUrl') || 'http://localhost:11434' };
   }
 
   function getModel() {
@@ -77,25 +77,32 @@ const settings = (() => {
       <option value="github"    ${tier==='github'?'selected':''}>GitHub Models (free)</option>
       <option value="anthropic" ${tier==='anthropic'?'selected':''}>BYOK — Anthropic</option>
       <option value="openai"    ${tier==='openai'?'selected':''}>BYOK — OpenAI</option>
-      <option value="ollama"    ${tier==='ollama'?'selected':''}>Ollama (local)</option>
+      <option value="local"     ${tier==='local'?'selected':''}>Local (Ollama · LM Studio · MLX)</option>
     </select>
   </div>
-  <div class="sg-row" id="sg-key-row" ${tier==='ollama'?'style="display:none"':''}>
+  <div class="sg-row" id="sg-key-row" ${tier==='local'?'style="display:none"':''}>
     <label>${tier==='anthropic'?'Anthropic key':tier==='openai'?'OpenAI key':'GitHub PAT'}</label>
     <input id="sg-key" type="password" placeholder="paste key…"
       value="${tier==='anthropic'?get('anthropicKey'):tier==='openai'?get('openaiKey'):get('githubPat')}"
       onchange="settings.onKeyChange(this.value)">
   </div>
-  <div class="sg-row" id="sg-url-row" ${tier!=='ollama'?'style="display:none"':''}>
-    <label>Ollama URL</label>
+  <div class="sg-row" id="sg-url-row" ${tier!=='local'?'style="display:none"':''}>
+    <label>Local server URL</label>
+    <div class="sg-presets">
+      ${LOCAL_PRESETS.map(p => `<button class="sg-preset" onclick="settings.onUrlPreset('${p.url}')">${p.label}</button>`).join('')}
+    </div>
     <input id="sg-url" type="text" placeholder="http://localhost:11434"
-      value="${get('ollamaUrl')}" onchange="settings.onUrlChange(this.value)">
+      value="${get('localUrl')}" onchange="settings.onUrlChange(this.value)">
   </div>
   <div class="sg-row">
-    <label>Model</label>
-    <select id="sg-model" onchange="settings.onModelChange(this.value)">
-      ${tierModels.map(m => `<option value="${m.id}" ${m.id===modelId?'selected':''}>${m.name}</option>`).join('')}
-    </select>
+    <label>Model ${tier==='local'?'<button class="sg-discover" onclick="settings.discoverModels()">↻ discover</button>':''}</label>
+    ${tier==='local'
+      ? `<input id="sg-model-input" type="text" placeholder="model name e.g. llama3.2"
+           value="${modelId}" onchange="settings.onModelChange(this.value)">`
+      : `<select id="sg-model" onchange="settings.onModelChange(this.value)">
+           ${tierModels.map(m => `<option value="${m.id}" ${m.id===modelId?'selected':''}>${m.name}</option>`).join('')}
+         </select>`
+    }
   </div>
   <div class="sg-sep"></div>
   <div class="sg-row">
@@ -151,7 +158,29 @@ const settings = (() => {
     const keyK = tier === 'anthropic' ? 'anthropicKey' : tier === 'openai' ? 'openaiKey' : 'githubPat';
     set(keyK, val);
   }
-  function onUrlChange(val) { set('ollamaUrl', val); }
+  function onUrlChange(val) { set('localUrl', val); }
+  function onUrlPreset(url) {
+    set('localUrl', url);
+    const inp = document.getElementById('sg-url');
+    if (inp) inp.value = url;
+    discoverModels();
+  }
+  async function discoverModels() {
+    const url = (get('localUrl') || 'http://localhost:11434').replace(/\/$/, '');
+    const inp = document.getElementById('sg-model-input');
+    if (inp) inp.placeholder = 'discovering…';
+    try {
+      const resp = await fetch(url + '/v1/models');
+      if (!resp.ok) throw new Error();
+      const json = await resp.json();
+      const ids = (json.data || []).map(m => m.id);
+      if (inp && ids.length) { inp.placeholder = ids[0]; inp.value = ids[0]; set('model', ids[0]); }
+      // populate MODELS.local for ctxForModel lookups
+      MODELS.local = ids.map(id => ({ id, name: id, ctx: 32000 }));
+    } catch(_) {
+      if (inp) inp.placeholder = 'enter model name manually';
+    }
+  }
   function onModelChange(val) { set('model', val); }
   function onField(key, val) { set(key, val); }
   function clearHistory() { toto.clearHistory(); closeDrawer(); }
@@ -182,6 +211,6 @@ const settings = (() => {
   }
 
   return { get, set, getAuth, getModel, getSystemPrompt, toggle, init,
-           onSkinChange, onTierChange, onKeyChange, onUrlChange,
-           onModelChange, onField, clearHistory, loadSkin, attachFile };
+           onSkinChange, onTierChange, onKeyChange, onUrlChange, onUrlPreset,
+           onModelChange, onField, clearHistory, loadSkin, attachFile, discoverModels };
 })();
