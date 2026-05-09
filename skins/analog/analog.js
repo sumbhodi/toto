@@ -38,7 +38,7 @@
     <button class="bot-stop" id="analog-stop" style="display:none">⏹</button>
   </div>
 
-  <div class="analog-body">
+  <div class="skin-body">
 
   <!-- spool fade teeth -->
   <div class="analog-teeth"></div>
@@ -121,7 +121,7 @@
 
   </div><!-- /analog-dock -->
 
-  </div><!-- /analog-body -->
+  </div><!-- /skin-body -->
 </div>`;
 
   toto.mountResize({ sliderId: 'analog-tubes', topId: 'analog-msgs', minTop: 80, minBottom: 80 });

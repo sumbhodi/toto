@@ -134,6 +134,14 @@ html, body {
 }
 .csw-lever.on { transform: translateY(-10px); }
 
+/* ── skin body — fills card below header ─────────── */
+.skin-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 /* ── card header row ─────────────────────────────── */
 .ph-row1 {
   min-height: 44px; display: flex; align-items: center;
