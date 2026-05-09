@@ -4,7 +4,7 @@
   if (!mount) return;
 
   mount.innerHTML = `
-<div id="beach-card" class="panel p-beach powered-off">
+<div id="beach-card" class="panel p-beach">
   <div id="dolphin-header" class="ph ph-row1">
     <svg class="oz-model-icon" width="28" height="28" viewBox="0 0 28 28" fill="none">
       <path d="M3 16 Q7 10 15 12 Q21 13 25 9 L25 13 Q21 16 15 16 Q8 17 3 16Z" fill="#3898CC"/>
@@ -23,9 +23,6 @@
       <div class="coder-jewel cj-g" id="beach-jsg"></div>
     </div>
     <button class="bot-stop" id="beach-stop" style="display:none">⏹</button>
-    <div class="csw-wrap" onclick="beachPowerToggle()">
-      <div class="csw-housing"><div class="csw-lever" id="beach-lever"></div></div>
-    </div>
   </div>
   <div class="pb">
     <div id="beach-msgs"></div>
@@ -52,18 +49,4 @@
     stopId:  'beach-stop',
   });
 
-  // wave resize
-  const wave = document.getElementById('beach-wave');
-  const card = document.getElementById('beach-card');
-  if (wave && card) {
-    wave.addEventListener('mousedown', e => {
-      e.preventDefault();
-      const startY = e.clientY, startH = card.offsetHeight;
-      const onMove = e => { card.style.height = Math.max(180, startH + e.clientY - startY) + 'px'; };
-      const onUp   = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    });
-    wave.addEventListener('dblclick', () => { card.style.height = ''; });
-  }
 })();
