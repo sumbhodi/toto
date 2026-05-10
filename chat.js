@@ -431,7 +431,7 @@ const toto = (() => {
         const pairs = bumpHFPairs();
         updateHFCounter();
         if (isMommaMode()) {
-          if (pairs === 1) appendMsg('assistant',
+          if (pairs === 1 && !settings.get('userWho')) appendMsg('assistant',
             `👋 Hey! Fill in ⚙️ Settings → your name, who you are, how you think. The more you share, the better I can help. No rush — I'll be here.`);
         } else {
           if (pairs === 1) showPair1Nudge();
