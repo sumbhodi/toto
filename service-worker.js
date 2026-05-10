@@ -1,4 +1,4 @@
-const CACHE = 'toto-v2';
+const CACHE = 'toto-v3';
 const SHELL = [
   '/',
   '/index.html',
