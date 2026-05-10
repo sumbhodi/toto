@@ -140,10 +140,7 @@ const settings = (() => {
     const mount = document.getElementById('skin-mount');
     mount.innerHTML = '';
     ['toto-skin-css', 'toto-skin-js'].forEach(id => document.getElementById(id)?.remove());
-    const link = document.createElement('link');
-    link.id = 'toto-skin-css'; link.rel = 'stylesheet';
-    link.href = 'skins/' + skinId + '/' + skinId + '.css';
-    document.head.appendChild(link);
+    // CSS is self-injected by each skin's JS — no separate link needed
     const script = document.createElement('script');
     script.id = 'toto-skin-js';
     script.src = 'skins/' + skinId + '/' + skinId + '.js?' + Date.now();
