@@ -33,4 +33,14 @@
     sendId:  'phone-send',
     stopId:  'phone-stop',
   });
+
+  // auto-expand textarea: 1 line → 4 lines → scroll
+  const _pi = document.getElementById('phone-input');
+  if (_pi) {
+    const MAX_H = 168; // ~4 lines at 28px font * 1.4lh + padding
+    _pi.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, MAX_H) + 'px';
+    });
+  }
 })();

@@ -3,6 +3,16 @@ const toto = (() => {
   const $ = id => document.getElementById(id);
   let _skin = null, _history = [], _controller = null, _busy = false;
 
+  // ── BYOK resolver — 'groq:model-id' → { url, key, model, providerId } ───────
+  function resolveBYOK(modelStr) {
+    if (!modelStr || !modelStr.includes(':')) return null;
+    const sep = modelStr.indexOf(':');
+    const pid = modelStr.slice(0, sep);
+    const provider = (typeof BYOK_PROVIDERS !== 'undefined') && BYOK_PROVIDERS.find(p => p.id === pid);
+    if (!provider) return null;
+    return { url: provider.url, key: settings.get(pid + 'Key'), model: modelStr.slice(sep + 1), providerId: pid };
+  }
+
   // ── message rendering ───────────────────────────────────────────────────────
   function appendMsg(role, text) {
     const out = $(_skin.msgsId);
@@ -199,8 +209,15 @@ const toto = (() => {
 
     const auth = settings.getAuth();
     const model = settings.getModel();
-    if (!auth.key && auth.tier !== 'local' && auth.tier !== 'hf') {
+
+    // resolve BYOK provider from model prefix (e.g. 'groq:llama-3.3-70b-versatile')
+    const byok = resolveBYOK(model);
+    if (!byok && !auth.key && auth.tier !== 'local' && auth.tier !== 'hf') {
       appendMsg('assistant', '[No API key — open ⚙️ settings and add one.]');
+      return;
+    }
+    if (byok && !byok.key) {
+      appendMsg('assistant', `[No key for ${byok.providerId} — add it in ⚙️ settings → Free API Keys]`);
       return;
     }
 
@@ -225,7 +242,9 @@ const toto = (() => {
       let botText = '';
       const onChunk = chunk => { botText += chunk; updateLastMsg(botDiv, botText); };
 
-      if (auth.tier === 'anthropic') {
+      if (byok) {
+        await streamOpenAI(byok.url, byok.key, byok.model, _history, sys, onChunk, _controller.signal);
+      } else if (auth.tier === 'anthropic') {
         await streamAnthropic(auth.key, model, _history, sys, onChunk, _controller.signal);
       } else {
         const url = auth.tier === 'github'  ? 'https://models.inference.ai.azure.com/chat/completions'
@@ -260,9 +279,7 @@ const toto = (() => {
     const stop = $(config.stopId);
     const card = $(config.cardId);
 
-    if (inp) inp.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
-    });
+    // Enter = newline (no send-on-enter — use the send button)
     if (send) send.onclick = () => doSend();
     if (stop) stop.onclick = () => { _controller?.abort(); setJewel('on'); _busy = false; };
 
@@ -289,8 +306,19 @@ const toto = (() => {
       }
     }
 
-    // compress + gear wired globally in index.html
-    setJewel('off');
+    // inject 📎 🗜️ ⚙️ into skin header (replaces fixed #toto-controls)
+    const phRow = card?.querySelector('.ph-row1');
+    if (phRow) {
+      const ctrl = document.createElement('div');
+      ctrl.style.cssText = 'display:flex;gap:4px;flex-shrink:0';
+      ctrl.innerHTML =
+        `<button class="toto-btn" title="Attach file"        onclick="settings.attachFile()">📎</button>` +
+        `<button class="toto-btn" title="Compress history"   onclick="toto.compressHistory()">🗜️</button>` +
+        `<button class="toto-btn" title="Settings"           onclick="settings.toggle()">⚙️</button>`;
+      phRow.appendChild(ctrl);
+    }
+
+    setJewel('on'); // always green in toto
   }
 
   // ── mountToggle — shared input reveal utility ──────────────────────────────

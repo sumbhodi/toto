@@ -20,12 +20,7 @@ html, body {
   color: #e8e8e8;
 }
 
-/* ── floating controls — always-visible top-right overlay ── */
-#toto-controls {
-  position: fixed; top: 6px; right: 6px;
-  z-index: 300;
-  display: flex; gap: 4px;
-}
+/* ── skin header controls (injected into .ph-row1 by mount()) ── */
 .toto-btn {
   background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.12);
   font-size: 17px; cursor: pointer;
@@ -58,6 +53,45 @@ html, body {
 #settings-drawer.open { transform: translateX(0); }
 
 #settings-inner { padding: 16px; }
+
+/* ── tabs ─────────────────────────────────────────── */
+.sg-tabs {
+  display: flex; gap: 4px; margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 8px;
+}
+.sg-tab {
+  flex: 1; padding: 8px 0; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5);
+  border-radius: 5px; cursor: pointer; font-size: var(--fs-tab);
+  font-family: inherit; letter-spacing: 0.04em;
+  transition: background 0.15s, color 0.15s;
+}
+.sg-tab:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.8); }
+.sg-tab.active {
+  background: rgba(255,255,255,0.12); color: #fff;
+  border-color: rgba(255,255,255,0.22);
+}
+
+/* ── section labels ──────────────────────────────── */
+.sg-section-label {
+  font-size: var(--fs-tab); color: rgba(255,255,255,0.35);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin: 4px 0 12px; padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── inline row (two columns) ────────────────────── */
+.sg-row-inline {
+  flex-direction: row; gap: 10px;
+}
+.sg-row-inline > div {
+  flex: 1; display: flex; flex-direction: column; gap: 5px;
+}
+.sg-row-inline input {
+  width: 100%;
+}
+
 .sg-row {
   display: flex; flex-direction: column;
   margin-bottom: 14px; gap: 5px;
@@ -98,10 +132,62 @@ html, body {
 }
 .sg-btn-danger:hover { background: rgba(200,50,50,0.4); }
 
+/* ── BYOK section ────────────────────────────────── */
+.sg-byok { margin: 0 0 4px; border-radius: 6px; overflow: hidden; }
+.sg-byok-title {
+  list-style: none; cursor: pointer;
+  padding: 10px 12px; font-size: var(--fs-tab);
+  color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.05);
+  border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; gap: 6px; user-select: none;
+}
+.sg-byok-title:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.9); }
+.sg-byok-hint { font-size: 13px; color: rgba(255,255,255,0.35); font-weight: 400; }
+.sg-byok-body { padding: 10px 4px 4px; }
+
+.sg-tutorial { margin-bottom: 12px; }
+.sg-tutorial-title {
+  list-style: none; cursor: pointer;
+  font-size: var(--fs-tab); color: rgba(255,255,255,0.5);
+  padding: 6px 10px; border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03); user-select: none;
+}
+.sg-tutorial-title:hover { color: rgba(255,255,255,0.75); }
+.sg-tutorial-body {
+  padding: 10px 12px; font-size: var(--fs-tab);
+  color: rgba(255,255,255,0.55); line-height: 1.7;
+}
+.sg-tutorial-body ol { margin: 8px 0 8px 18px; padding: 0; }
+.sg-tutorial-body li { margin-bottom: 4px; }
+.sg-tutorial-body strong { color: rgba(255,255,255,0.8); }
+.sg-tutorial-body p { margin: 6px 0; }
+
+.sg-byok-providers { display: flex; flex-direction: column; gap: 8px; }
+.sg-byok-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.sg-byok-name {
+  font-size: var(--fs-tab); color: rgba(255,255,255,0.6);
+  width: 90px; flex-shrink: 0;
+}
+.sg-byok-link {
+  font-size: 13px; color: rgba(100,180,255,0.7);
+  text-decoration: none; flex-shrink: 0; white-space: nowrap;
+}
+.sg-byok-link:hover { color: rgba(140,210,255,1); text-decoration: underline; }
+.sg-byok-input {
+  flex: 1; background: #222; border: 1px solid rgba(255,255,255,0.1);
+  color: #e8e8e8; border-radius: 5px; padding: 5px 8px;
+  font-size: var(--fs-tab); font-family: monospace; min-width: 0;
+}
+.sg-byok-input:focus { border-color: rgba(255,255,255,0.3); outline: none; }
+
 /* ── jewels ──────────────────────────────────────── */
 .coder-jewels { display: flex; gap: 5px; align-items: center; flex-shrink: 0; margin-left: 4px; }
 .coder-jewel  { width: 11px; height: 11px; border-radius: 50%; transition: all 0.3s; }
-.cj-g { background: radial-gradient(circle at 35% 35%, #2A4A2A, #162416); border: 1px solid #2A5A2A; }
+/* jewels — green by default, state changes still work */
+.cj-g { background: radial-gradient(circle at 35% 35%, #AAFFAA, #00BB44); border: 1px solid #00CC44; box-shadow: 0 0 8px #00CC44; }
 .cj-a { background: radial-gradient(circle at 35% 35%, #4A3810, #281E08); border: 1px solid #6A4A10; }
 .cj-r { background: radial-gradient(circle at 35% 35%, #4A1A1A, #280A0A); border: 1px solid #6A1A1A; }
 .cj-g.lit { background: radial-gradient(circle at 35% 35%, #AAFFAA, #00BB44); border-color: #00CC44; box-shadow: 0 0 8px #00CC44; }
