@@ -30,7 +30,7 @@ const settings = (() => {
     const parts = [];
 
     // ── bot personality ─────────────────────────────────────────────────────
-    const persona = get('persona') || 'You are a helpful, warm assistant.';
+    const persona = get('persona') || DEFAULT_PERSONA;
     parts.push(persona);
     const botName      = get('botName');
     const botPronouns  = get('botPronouns');
@@ -283,7 +283,7 @@ const settings = (() => {
     ${modelSection}
     <div class="sg-sep"></div>
 
-    <details class="sg-byok">
+    <details class="sg-byok" id="sg-byok-section">
       <summary class="sg-byok-title">🔑 Free API Keys <span class="sg-byok-hint">— unlock more models</span></summary>
       <div class="sg-byok-body">
 
@@ -582,6 +582,16 @@ const settings = (() => {
     inp.click();
   }
 
+  // ── scrollToBYOK — open settings, switch to interface tab, scroll to BYOK ──
+  function scrollToBYOK() {
+    openDrawer();
+    showTab('interface');
+    setTimeout(() => {
+      const el = document.getElementById('sg-byok-section');
+      if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    }, 350);
+  }
+
   // ── init ────────────────────────────────────────────────────────────────────
   function init() {
     const skin = get('skin') || 'beach';
@@ -590,7 +600,7 @@ const settings = (() => {
     if (savedSize) setFontSize(savedSize);
   }
 
-  return { get, set, getAuth, getModel, getSystemPrompt, toggle, openDrawer, showTab, init,
+  return { get, set, getAuth, getModel, getSystemPrompt, toggle, openDrawer, showTab, scrollToBYOK, init,
            onSkinChange, onTierChange, onKeyChange, onUrlChange, onUrlPreset,
            onModelChange, onHFModelChange, onField, clearHistory, loadSkin, attachFile, discoverModels,
            setFontSize, stepFontSize,

@@ -103,6 +103,13 @@ const BYOK_PROVIDERS = [
       { id: 'microsoft/phi-3-mini-128k-instruct:free', name: 'Phi-3 Mini (free)',    ctx: 131072 },
     ]},
 ];
+// ── HF demo config + default persona ────────────────────────────────────────
+const HF_PAIR_LIMIT = 10;
+const DEFAULT_PERSONA =
+`You are a knowledgeable, warm assistant. You know almost everything. You have no persistent memory — each conversation starts completely fresh.
+
+First response only: briefly introduce yourself. Let the user know you start every session with no memory of past chats, and that they can share context about themselves in ⚙️ Settings to make you more useful to them.`;
+
 // chat.js — toto core engine
 const toto = (() => {
   const $ = id => document.getElementById(id);
@@ -149,6 +156,29 @@ const toto = (() => {
     if (state === 'on')      { g.classList.add('lit'); }
     if (state === 'waiting') { a.classList.add('lit', 'blinking'); }
     if (state === 'error')   { r.classList.add('lit'); }
+  }
+
+  // ── HF demo helpers ─────────────────────────────────────────────────────────
+  function isHFDemo() { return window.location.hostname.endsWith('.hf.space'); }
+  function getHFPairs() { return parseInt(sessionStorage.getItem('toto_hf_pairs') || '0'); }
+  function bumpHFPairs() { const n = getHFPairs() + 1; sessionStorage.setItem('toto_hf_pairs', String(n)); return n; }
+  function isDefaultPersona() { const p = settings.get('persona'); return !p || p === DEFAULT_PERSONA; }
+
+  function showPair1Nudge() {
+    appendMsg('assistant',
+      `───\n🆓 Demo mode — ${HF_PAIR_LIMIT} free pairs, shared tokens. Leave some for the next person.\n\n` +
+      `Liked it? Get your own free API key for unlimited conversations:\n` +
+      `⚙️ Settings → 🔑 Free API Keys  (Groq, Gemini, Mistral and more — all free, no credit card)\n\n` +
+      `"I'm gonna build my own chatbot — with blackjack and API keys!"  — Bender`);
+  }
+
+  function showHFBlock() {
+    appendMsg('assistant',
+      `⏸ ${HF_PAIR_LIMIT} free pairs used this session.\n\n` +
+      `Refresh for ${HF_PAIR_LIMIT} more — or get your own free API key for unlimited conversations.\n` +
+      `Takes 2 minutes. No credit card needed.\n\n` +
+      `Opening Settings → 🔑 Free API Keys now…`);
+    setTimeout(() => settings.scrollToBYOK(), 500);
   }
 
   // ── history + trim ──────────────────────────────────────────────────────────
@@ -309,6 +339,7 @@ const toto = (() => {
     const inp = $(_skin.inputId);
     const text = (extraText || inp?.value || '').trim();
     if (!text || _busy) return;
+    if (isHFDemo() && getHFPairs() >= HF_PAIR_LIMIT) { showHFBlock(); return; }
     if (inp) inp.value = '';
 
     const auth = settings.getAuth();
@@ -361,6 +392,10 @@ const toto = (() => {
       _history.push({ role: 'assistant', content: botText });
       saveHistory();
       setJewel('on');
+      if (isHFDemo()) {
+        const pairs = bumpHFPairs();
+        if (pairs === 1 && isDefaultPersona()) showPair1Nudge();
+      }
     } catch(e) {
       if (e.name !== 'AbortError') {
         updateLastMsg(botDiv, '[error: ' + e.message + ']');
@@ -416,7 +451,7 @@ const toto = (() => {
       }
     }
 
-    // inject 📎 🗜️ ⚙️ into skin header (replaces fixed #toto-controls)
+    // inject 📎 🗜️ ⚙️ ▲ into skin header
     const phRow = card?.querySelector('.ph-row1');
     if (phRow) {
       const ctrl = document.createElement('div');
@@ -424,11 +459,26 @@ const toto = (() => {
       ctrl.innerHTML =
         `<button class="toto-btn" title="Attach file"        onclick="settings.attachFile()">📎</button>` +
         `<button class="toto-btn" title="Compress history"   onclick="toto.compressHistory()">🗜️</button>` +
-        `<button class="toto-btn" title="Settings"           onclick="settings.toggle()">⚙️</button>`;
+        `<button class="toto-btn" title="Settings"           onclick="settings.toggle()">⚙️</button>` +
+        `<button class="toto-btn toto-collapse-btn" title="Collapse / expand"
+           onclick="(function(b){var c=document.getElementById('${config.cardId}');c.classList.toggle('toto-collapsed');b.textContent=c.classList.contains('toto-collapsed')?'▼':'▲'})(this)">▲</button>`;
       phRow.appendChild(ctrl);
     }
 
     setJewel('on'); // always green in toto
+
+    // glass box — show system prompt as first visible message, once per session
+    if (!sessionStorage.getItem('toto_glass_shown')) {
+      sessionStorage.setItem('toto_glass_shown', '1');
+      const sys = settings.getSystemPrompt();
+      const out = $(config.msgsId);
+      if (sys && out) {
+        const gb = document.createElement('div');
+        gb.className = 'oz-msg oz-msg-bot toto-glass-box';
+        gb.textContent = '📋 System prompt\n\n' + sys;
+        out.insertBefore(gb, out.firstChild);
+      }
+    }
   }
 
   // ── mountToggle — shared input reveal utility ──────────────────────────────
