@@ -8,8 +8,8 @@ const settings = (() => {
     pairsOverride: 'toto_pairs_override',
   };
 
-  const get = key => localStorage.getItem(K[key]) || '';
-  const set = (key, val) => localStorage.setItem(K[key], val);
+  const get = key => localStorage.getItem(K[key] || 'toto_' + key) || '';
+  const set = (key, val) => localStorage.setItem(K[key] || 'toto_' + key, val);
 
   function getAuth() {
     if (window.location.hostname.endsWith('.hf.space')) {
@@ -67,6 +67,7 @@ const settings = (() => {
     const tier  = onHF ? 'hf' : (get('authTier') || 'github');
     const skin  = get('skin') || 'beach';
     const skins = ['beach','neo','analog','historian','phone'];
+    // close button injected at top of drawer
     const hfModelId = get('hfModel') || MODELS.hf[0]?.id || '';
     const modelId   = onHF ? hfModelId : getModel();
     const tierModels = onHF ? MODELS.hf : (MODELS[tier] || []);
@@ -100,6 +101,16 @@ const settings = (() => {
              value="${get('localUrl')}" onchange="settings.onUrlChange(this.value)">
          </div>`;
 
+    // BYOK models appended to selector when keys are present
+    const byokGroups = BYOK_PROVIDERS
+      .filter(p => get(p.id + 'Key'))
+      .map(p => `<optgroup label="── ${p.name} ──">
+        ${p.models.map(m => {
+          const val = p.id + ':' + m.id;
+          return `<option value="${val}" ${val===modelId?'selected':''}>${m.name}</option>`;
+        }).join('')}
+      </optgroup>`).join('');
+
     const modelSection = `<div class="sg-row">
       <label>Model ${(!onHF && tier==='local')?'<button class="sg-discover" onclick="settings.discoverModels()">↻ discover</button>':''}</label>
       ${(!onHF && tier==='local')
@@ -107,6 +118,7 @@ const settings = (() => {
              value="${modelId}" onchange="settings.onModelChange(this.value)">`
         : `<select id="sg-model" onchange="${onHF?'settings.onHFModelChange':'settings.onModelChange'}(this.value)">
              ${tierModels.map(m => `<option value="${m.id}" ${m.id===modelId?'selected':''}>${m.name}</option>`).join('')}
+             ${byokGroups}
            </select>`
       }
     </div>`;
@@ -139,6 +151,64 @@ const settings = (() => {
   </div>
   <div class="sg-sep"></div>
   <div class="sg-row">
+    <label>Font size</label>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <button class="sg-preset" onclick="settings.stepFontSize(-2)" style="font-size:18px;padding:2px 10px">−</button>
+      <input id="sg-fontsize" type="number" min="8" max="64"
+        value="${parseInt(get('fontSize'))||28}"
+        style="width:64px;text-align:center"
+        onchange="settings.setFontSize(this.value)">
+      <button class="sg-preset" onclick="settings.stepFontSize(2)" style="font-size:18px;padding:2px 10px">+</button>
+      <button class="sg-preset" onclick="settings.setFontSize(8)">8</button>
+      <button class="sg-preset" onclick="settings.setFontSize(12)">12</button>
+      <button class="sg-preset" onclick="settings.setFontSize(16)">16</button>
+      <button class="sg-preset" onclick="settings.setFontSize(28)">28</button>
+    </div>
+  </div>
+  <div class="sg-sep"></div>
+
+  <details class="sg-byok">
+    <summary class="sg-byok-title">🔑 Free API Keys <span class="sg-byok-hint">— unlock more models</span></summary>
+    <div class="sg-byok-body">
+
+      <details class="sg-tutorial">
+        <summary class="sg-tutorial-title">📖 What is an API key?</summary>
+        <div class="sg-tutorial-body">
+          <p>An API key is a password that lets toto talk to an AI service on your behalf. Each provider gives you one free — no credit card needed.</p>
+          <ol>
+            <li>Click a <strong>Sign up</strong> link below</li>
+            <li>Create a free account</li>
+            <li>Find <strong>API Keys</strong> in their dashboard</li>
+            <li>Click <strong>Create / Generate key</strong></li>
+            <li>Copy the key and paste it into the field here</li>
+          </ol>
+          <p class="sg-hint">Keys are stored only in your browser. toto never sees them server-side.</p>
+        </div>
+      </details>
+
+      <div class="sg-byok-providers">
+        ${[
+          { id:'groq',        name:'Groq',        url:'https://console.groq.com/keys',             placeholder:'gsk_...' },
+          { id:'mistral',     name:'Mistral',      url:'https://console.mistral.ai/api-keys',       placeholder:'...' },
+          { id:'cerebras',    name:'Cerebras',     url:'https://cloud.cerebras.ai',                 placeholder:'csk-...' },
+          { id:'sambanova',   name:'SambaNova',    url:'https://cloud.sambanova.ai/apis',           placeholder:'...' },
+          { id:'openrouter',  name:'OpenRouter',   url:'https://openrouter.ai/keys',               placeholder:'sk-or-...' },
+          { id:'gemini',      name:'Gemini',       url:'https://aistudio.google.com/apikey',        placeholder:'AIza...' },
+        ].map(p => `
+        <div class="sg-byok-row">
+          <span class="sg-byok-name">${p.name}</span>
+          <a class="sg-byok-link" href="${p.url}" target="_blank" rel="noopener">Sign up ↗</a>
+          <input type="password" class="sg-byok-input" placeholder="${p.placeholder}"
+            value="${get(p.id+'Key')}"
+            oninput="settings.set('${p.id}Key', this.value)">
+        </div>`).join('')}
+      </div>
+
+    </div>
+  </details>
+
+  <div class="sg-sep"></div>
+  <div class="sg-row">
     <label>Keep pairs</label>
     <input id="sg-pairs" type="number" min="0" placeholder="auto"
       value="${get('pairsOverride')}" onchange="settings.onField('pairsOverride',this.value)">
@@ -152,7 +222,7 @@ const settings = (() => {
 
   function openDrawer() {
     const d = document.getElementById('settings-drawer');
-    d.innerHTML = drawerHTML();
+    d.innerHTML = `<button onclick="settings.toggle()" style="position:sticky;top:0;float:right;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:5px;padding:4px 10px;cursor:pointer;font-size:18px;margin:8px 8px 0 0;z-index:10">✕</button>` + drawerHTML();
     d.classList.add('open');
   }
   function closeDrawer() {
@@ -203,6 +273,23 @@ const settings = (() => {
   function onField(key, val) { set(key, val); }
   function clearHistory() { toto.clearHistory(); closeDrawer(); }
 
+  // ── font size ────────────────────────────────────────────────────────────────
+  function setFontSize(val) {
+    val = Math.max(8, Math.min(64, parseInt(val) || 28));
+    // scale all font vars proportionally from base 28
+    document.documentElement.style.setProperty('--fs-body',  val + 'px');
+    document.documentElement.style.setProperty('--fs-label', Math.round(val * 0.714) + 'px');
+    document.documentElement.style.setProperty('--fs-tab',   Math.round(val * 0.643) + 'px');
+    document.documentElement.style.setProperty('--fs-title', Math.round(val * 1.071) + 'px');
+    set('fontSize', val);
+    const inp = document.getElementById('sg-fontsize');
+    if (inp) inp.value = val;
+  }
+  function stepFontSize(delta) {
+    const cur = parseInt(get('fontSize')) || 28;
+    setFontSize(cur + delta);
+  }
+
   // ── paperclip ───────────────────────────────────────────────────────────────
   function attachFile() {
     const inp = document.createElement('input');
@@ -226,9 +313,12 @@ const settings = (() => {
   function init() {
     const skin = get('skin') || 'beach';
     loadSkin(skin);
+    const savedSize = get('fontSize');
+    if (savedSize) setFontSize(savedSize);
   }
 
   return { get, set, getAuth, getModel, getSystemPrompt, toggle, init,
            onSkinChange, onTierChange, onKeyChange, onUrlChange, onUrlPreset,
-           onModelChange, onHFModelChange, onField, clearHistory, loadSkin, attachFile, discoverModels };
+           onModelChange, onHFModelChange, onField, clearHistory, loadSkin, attachFile, discoverModels,
+           setFontSize, stepFontSize };
 })();
