@@ -451,33 +451,34 @@ const toto = (() => {
       }
     }
 
-    // inject 📎 🗜️ ⚙️ ▲ into skin header
+    // inject 📎 🗜️ ⚙️ into skin header + click-topbar-to-collapse
     const phRow = card?.querySelector('.ph-row1');
     if (phRow) {
       const ctrl = document.createElement('div');
       ctrl.style.cssText = 'display:flex;gap:4px;flex-shrink:0';
       ctrl.innerHTML =
-        `<button class="toto-btn" title="Attach file"        onclick="settings.attachFile()">📎</button>` +
-        `<button class="toto-btn" title="Compress history"   onclick="toto.compressHistory()">🗜️</button>` +
-        `<button class="toto-btn" title="Settings"           onclick="settings.toggle()">⚙️</button>` +
-        `<button class="toto-btn toto-collapse-btn" title="Collapse / expand"
-           onclick="(function(b){var c=document.getElementById('${config.cardId}');c.classList.toggle('toto-collapsed');b.textContent=c.classList.contains('toto-collapsed')?'▼':'▲'})(this)">▲</button>`;
+        `<button class="toto-btn" title="Attach file"      onclick="settings.attachFile()">📎</button>` +
+        `<button class="toto-btn" title="Compress history" onclick="toto.compressHistory()">🗜️</button>` +
+        `<button class="toto-btn" title="Settings"         onclick="settings.toggle()">⚙️</button>`;
       phRow.appendChild(ctrl);
+      // click empty topbar space = collapse / expand
+      phRow.style.cursor = 'pointer';
+      phRow.addEventListener('click', e => {
+        if (e.target.closest('button, input, select, a')) return;
+        card.classList.toggle('toto-collapsed');
+      });
     }
 
     setJewel('on'); // always green in toto
 
-    // glass box — show system prompt as first visible message, once per session
-    if (!sessionStorage.getItem('toto_glass_shown')) {
-      sessionStorage.setItem('toto_glass_shown', '1');
-      const sys = settings.getSystemPrompt();
-      const out = $(config.msgsId);
-      if (sys && out) {
-        const gb = document.createElement('div');
-        gb.className = 'oz-msg oz-msg-bot toto-glass-box';
-        gb.textContent = '📋 System prompt\n\n' + sys;
-        out.insertBefore(gb, out.firstChild);
-      }
+    // glass box — system prompt always visible at top of chat
+    const sys = settings.getSystemPrompt();
+    const out = $(config.msgsId);
+    if (sys && out) {
+      const gb = document.createElement('div');
+      gb.className = 'oz-msg oz-msg-bot toto-glass-box';
+      gb.textContent = '📋 System prompt\n\n' + sys;
+      out.insertBefore(gb, out.firstChild);
     }
   }
 
