@@ -64,12 +64,11 @@ const toto = (() => {
   }
 
   function saveHistory() {
-    if (!_skin) return;
-    try { localStorage.setItem('toto_hist_' + _skin.skinId, JSON.stringify(_history)); } catch(_) {}
+    try { localStorage.setItem('toto_hist', JSON.stringify(_history)); } catch(_) {}
   }
 
-  function loadHistory(skinId) {
-    try { _history = JSON.parse(localStorage.getItem('toto_hist_' + skinId) || '[]'); } catch(_) { _history = []; }
+  function loadHistory() {
+    try { _history = JSON.parse(localStorage.getItem('toto_hist') || '[]'); } catch(_) { _history = []; }
   }
 
   // ── compress ────────────────────────────────────────────────────────────────
@@ -272,7 +271,7 @@ const toto = (() => {
   // ── mount (called by skin JS after injecting HTML) ──────────────────────────
   function mount(config) {
     _skin = config;
-    loadHistory(config.skinId);
+    loadHistory();
 
     // render persisted history to display
     const out = $(config.msgsId);
