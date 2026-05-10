@@ -6,17 +6,8 @@
   mount.innerHTML = `
 <div id="beach-card" class="panel p-beach">
   <div id="dolphin-header" class="ph ph-row1">
-    <svg class="oz-model-icon" width="28" height="28" viewBox="0 0 28 28" fill="none">
-      <path d="M3 16 Q7 10 15 12 Q21 13 25 9 L25 13 Q21 16 15 16 Q8 17 3 16Z" fill="#3898CC"/>
-      <path d="M4 16 Q9 18 16 16.5 Q21 15.5 24.5 12 L25 13 Q21 16 15 16 Q8 17 4 16Z" fill="#70C0E0"/>
-      <path d="M14 12 Q16 6 20 8 Q18.5 10.5 15 12Z" fill="#2878A8"/>
-      <path d="M25 9 Q28 5 26.5 3 Q25.5 6 25 9Z" fill="#2878A8"/>
-      <path d="M25 9 Q29 12 27.5 15 Q26 12.5 25 9Z" fill="#2878A8"/>
-      <path d="M9 15 Q10 20 14 18 Q12.5 16.5 9 15Z" fill="#2878A8"/>
-      <circle cx="6.5" cy="13.5" r="2" fill="#1A3A4A"/>
-      <circle cx="6" cy="13" r="0.7" fill="rgba(255,255,255,0.7)"/>
-    </svg>
-    <span class="ph-title" style="color:#0a3a5a">dolphin</span>
+    <span style="font-size:24px;line-height:1">🐚</span>
+    <span class="ph-title" style="color:#0a3a5a">toto</span>
     <div class="coder-jewels">
       <div class="coder-jewel cj-r" id="beach-jsr"></div>
       <div class="coder-jewel cj-a" id="beach-jsa"></div>
@@ -49,7 +40,7 @@
         </svg>
       </div>
       <div id="beach-input-wrap" style="display:none">
-        <textarea id="beach-input" class="bot-input" placeholder="talk to dolphin…" spellcheck="false"></textarea>
+        <textarea id="beach-input" class="bot-input" placeholder="…" spellcheck="false"></textarea>
         <button id="beach-send" class="bot-send">send</button>
       </div>
     </div>
