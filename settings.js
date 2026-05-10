@@ -480,15 +480,29 @@ const settings = (() => {
 </div>`;
   }
 
+  function _backdrop() {
+    let bd = document.getElementById('sg-backdrop');
+    if (!bd) {
+      bd = document.createElement('div');
+      bd.id = 'sg-backdrop';
+      bd.onclick = closeDrawer;
+      document.body.appendChild(bd);
+    }
+    return bd;
+  }
+
   function openDrawer() {
     const d = document.getElementById('settings-drawer');
     d.innerHTML =
-      `<button onclick="settings.toggle()" style="position:sticky;top:0;float:right;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:5px;padding:4px 10px;cursor:pointer;font-size:18px;margin:8px 8px 0 0;z-index:10">✕</button>` +
+      `<button onclick="settings.toggle()" style="position:sticky;top:0;float:right;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#bbb;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:18px;margin:8px 8px 0 0;z-index:10">✕</button>` +
       drawerHTML();
     d.classList.add('open');
+    _backdrop().style.display = 'block';
   }
   function closeDrawer() {
     document.getElementById('settings-drawer').classList.remove('open');
+    const bd = document.getElementById('sg-backdrop');
+    if (bd) bd.style.display = 'none';
   }
   function toggle() {
     const d = document.getElementById('settings-drawer');

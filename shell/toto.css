@@ -38,6 +38,11 @@ html, body {
   display: flex; flex-direction: column;
 }
 
+/* ── settings backdrop ───────────────────────────── */
+#sg-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 199;
+}
+
 /* ── settings drawer ─────────────────────────────── */
 #settings-drawer {
   position: fixed; top: 0; right: 0;
