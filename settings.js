@@ -204,6 +204,9 @@ const settings = (() => {
         </div>`).join('')}
       </div>
 
+      <button class="sg-preset" style="margin-top:10px;width:100%;padding:8px 0;font-size:var(--fs-tab)"
+        onclick="settings.openDrawer()">↻ Update available models</button>
+
     </div>
   </details>
 
@@ -317,7 +320,7 @@ const settings = (() => {
     if (savedSize) setFontSize(savedSize);
   }
 
-  return { get, set, getAuth, getModel, getSystemPrompt, toggle, init,
+  return { get, set, getAuth, getModel, getSystemPrompt, toggle, openDrawer, init,
            onSkinChange, onTierChange, onKeyChange, onUrlChange, onUrlPreset,
            onModelChange, onHFModelChange, onField, clearHistory, loadSkin, attachFile, discoverModels,
            setFontSize, stepFontSize };
