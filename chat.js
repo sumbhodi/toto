@@ -469,7 +469,6 @@ const toto = (() => {
 
     // glass box — system prompt always visible at top of chat
     const sys = settings.getSystemPrompt();
-    const out = $(config.msgsId);
     if (sys && out) {
       const gb = document.createElement('div');
       gb.className = 'oz-msg oz-msg-bot toto-glass-box';
