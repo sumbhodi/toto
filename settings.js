@@ -339,8 +339,8 @@ const settings = (() => {
         </div>
       </details>
       <div class="sg-row">
-        <textarea rows="3" onchange="settings.onField('persona',this.value)"
-          placeholder="You are a helpful, warm assistant.">${get('persona')}</textarea>
+        <textarea rows="5" onchange="settings.onField('persona',this.value)"
+          placeholder="${DEFAULT_PERSONA}">${get('persona') || DEFAULT_PERSONA}</textarea>
       </div>
 
       <div class="sg-row sg-row-inline">
