@@ -166,10 +166,23 @@ const toto = (() => {
 
   function showPair1Nudge() {
     appendMsg('assistant',
-      `───\n🆓 Demo mode — ${HF_PAIR_LIMIT} free pairs, shared tokens. Leave some for the next person.\n\n` +
+      `🆓 Demo mode — ${HF_PAIR_LIMIT} free pairs, shared tokens. Leave some for the next person.\n\n` +
       `Liked it? Get your own free API key for unlimited conversations:\n` +
       `⚙️ Settings → 🔑 Free API Keys  (Groq, Gemini, Mistral and more — all free, no credit card)\n\n` +
       `"I'm gonna build my own chatbot — with blackjack and API keys!"  — Bender`);
+  }
+
+  function showPair5Nudge() {
+    appendMsg('assistant',
+      `⏳ Halfway there — 5 of ${HF_PAIR_LIMIT} free pairs used.\n\n` +
+      `If toto is useful, grab your own free API key and never hit this wall:\n` +
+      `⚙️ Settings → 🔑 Free API Keys — Groq, Gemini, Mistral and more.`);
+  }
+
+  function showPair9Warn() {
+    appendMsg('assistant',
+      `⚠️ Last pair — 9 of ${HF_PAIR_LIMIT} used. Next message ends the demo session.\n\n` +
+      `⚙️ Settings → 🔑 Free API Keys to continue without interruption.`);
   }
 
   function showHFBlock() {
@@ -179,6 +192,27 @@ const toto = (() => {
       `Takes 2 minutes. No credit card needed.\n\n` +
       `Opening Settings → 🔑 Free API Keys now…`);
     setTimeout(() => settings.scrollToBYOK(), 500);
+  }
+
+  function updateHFCounter() {
+    if (!_skin) return;
+    const el = document.getElementById(_skin.skinId + '-hf-count');
+    if (el) el.textContent = getHFPairs() + '/' + HF_PAIR_LIMIT;
+  }
+
+  // ── executive summary — always-visible injection at top of chat ─────────────
+  function showExecSummary() {
+    if (!_skin) return;
+    const out = $(_skin.msgsId);
+    if (!out) return;
+    const existing = out.querySelector('.toto-exec-summary');
+    if (existing) existing.remove();
+    const sys = settings.getSystemPrompt();
+    if (!sys) return;
+    const gb = document.createElement('div');
+    gb.className = 'oz-msg oz-msg-bot toto-exec-summary';
+    gb.textContent = 'executive summary\n\n' + sys;
+    out.insertBefore(gb, out.firstChild);
   }
 
   // ── history + trim ──────────────────────────────────────────────────────────
@@ -222,7 +256,7 @@ const toto = (() => {
       _history = [...head, { role: 'assistant', content: '[compressed]\n' + summary }, ...tail];
       saveHistory();
       const out = $(_skin.msgsId);
-      if (out) { out.innerHTML = ''; _history.forEach(m => appendMsg(m.role === 'user' ? 'user' : 'assistant', m.content)); }
+      if (out) { out.innerHTML = ''; _history.forEach(m => appendMsg(m.role === 'user' ? 'user' : 'assistant', m.content)); showExecSummary(); }
     } catch(e) { console.error('compress failed', e); }
   }
 
@@ -394,7 +428,10 @@ const toto = (() => {
       setJewel('on');
       if (isHFDemo()) {
         const pairs = bumpHFPairs();
+        updateHFCounter();
         if (pairs === 1) showPair1Nudge();
+        if (pairs === 5) showPair5Nudge();
+        if (pairs === 9) showPair9Warn();
       }
     } catch(e) {
       if (e.name !== 'AbortError') {
@@ -451,12 +488,16 @@ const toto = (() => {
       }
     }
 
-    // inject 📎 🗜️ ⚙️ into skin header + click empty topbar to collapse
+    // inject 📎 🗜️ ⚙️ [X/10] into skin header + click empty topbar to collapse
     const phRow = card?.querySelector('.ph-row1');
     if (phRow) {
       const ctrl = document.createElement('div');
-      ctrl.style.cssText = 'display:flex;gap:4px;flex-shrink:0';
+      ctrl.style.cssText = 'display:flex;align-items:center;gap:4px;flex-shrink:0';
+      const hfCountHtml = isHFDemo()
+        ? `<span id="${config.skinId}-hf-count" style="font-size:13px;opacity:0.55;padding-right:2px">${getHFPairs()}/${HF_PAIR_LIMIT}</span>`
+        : '';
       ctrl.innerHTML =
+        hfCountHtml +
         `<button class="toto-btn" title="Attach file"      onclick="settings.attachFile()">📎</button>` +
         `<button class="toto-btn" title="Compress history" onclick="toto.compressHistory()">🗜️</button>` +
         `<button class="toto-btn" title="Settings"         onclick="settings.toggle()">⚙️</button>`;
@@ -469,15 +510,7 @@ const toto = (() => {
     }
 
     setJewel('on'); // always green in toto
-
-    // glass box — show system prompt on fresh sessions only (no history)
-    const sys = settings.getSystemPrompt();
-    if (sys && out && _history.length === 0) {
-      const gb = document.createElement('div');
-      gb.className = 'oz-msg oz-msg-bot toto-glass-box';
-      gb.textContent = '📋 System prompt\n\n' + sys;
-      out.appendChild(gb);
-    }
+    showExecSummary(); // always-visible injection at top of chat
   }
 
   // ── mountToggle — shared input reveal utility ──────────────────────────────
@@ -542,5 +575,5 @@ const toto = (() => {
   }
 
   return { mount, mountResize, mountToggle, setJewel, appendMsg, updateLastMsg, compressHistory,
-           send: doSend, clearHistory: () => { _history = []; saveHistory(); if (_skin) { const out = $(_skin.msgsId); if (out) out.innerHTML = ''; } } };
+           send: doSend, clearHistory: () => { _history = []; saveHistory(); if (_skin) { const out = $(_skin.msgsId); if (out) out.innerHTML = ''; showExecSummary(); } } };
 })();
