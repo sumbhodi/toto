@@ -430,16 +430,18 @@ const toto = (() => {
       if (isHFDemo()) {
         const pairs = bumpHFPairs();
         updateHFCounter();
+        const hasKey = ['groq','mistral','gemini','cerebras','sambanova','openrouter'].some(k => settings.get(k));
         if (isMommaMode()) {
-          const hasInfo = ['userWho','userHow','userPronouns','userPrefs','userTreatment',
-            'persona','project','projectGoal',
-            'groq','mistral','gemini','cerebras','sambanova','openrouter'].some(k => settings.get(k));
-          if (pairs === 1 && !hasInfo) appendMsg('assistant',
+          const hasSettings = ['userWho','userHow','userPronouns','userPrefs','userTreatment',
+            'persona','project','projectGoal'].some(k => settings.get(k));
+          if (pairs === 1 && !hasKey && !hasSettings) appendMsg('assistant',
             `👋 Hey! Fill in ⚙️ Settings → your name, who you are, how you think. The more you share, the better I can help. No rush — I'll be here.`);
         } else {
-          if (pairs === 1) showPair1Nudge();
-          if (pairs === 5) showPair5Nudge();
-          if (pairs === 9) showPair9Warn();
+          if (!hasKey) {
+            if (pairs === 1) showPair1Nudge();
+            if (pairs === 5) showPair5Nudge();
+            if (pairs === 9) showPair9Warn();
+          }
         }
       }
     } catch(e) {
