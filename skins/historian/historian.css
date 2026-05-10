@@ -17,7 +17,7 @@
 /* header */
 .p-hist .ph {
   flex-shrink: 0;
-  background: url('skins/historian/hist-topbar.png') center / 100% 100% no-repeat, #1a1408;
+  background: url('hist-topbar.png') center / 100% 100% no-repeat, #1a1408;
   border-bottom: 2px solid #2a2018;
 }
 .p-hist .coder-jewel { border: 1px solid rgba(154,120,72,0.3); }
