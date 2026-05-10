@@ -9,7 +9,7 @@
 .p-phone .ph { background: url('skins/phone/city.png') center / cover no-repeat, #0d0820; border-bottom: 1px solid rgba(80,50,120,.4); flex-shrink: 0; position: relative; z-index: 10; }
 .p-phone .ph-title { color: #e0d0ff; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-weight: 600; }
 .phone-frame-overlay { position: absolute; top: 44px; left: 0; width: 100%; height: calc(100% - 44px); object-fit: fill; pointer-events: none; z-index: 5; }
-.phone-body { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 3% 9% 4%; position: relative; z-index: 6; }
+.phone-body { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 8% 9% 4%; position: relative; z-index: 6; }
 .phone-msgs { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 0; display: flex; flex-direction: column; gap: 6px; }
 .phone-msgs::-webkit-scrollbar { width: 3px; }
 .phone-msgs::-webkit-scrollbar-thumb { background: rgba(120,80,200,.3); border-radius: 2px; }
