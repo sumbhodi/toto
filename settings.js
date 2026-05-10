@@ -64,7 +64,70 @@ const settings = (() => {
       if (projInst) parts.push(projInst);
     }
 
+    // ── project files (injected into head, not pairs) ────────────────────────
+    const pfiles = getProjectFiles();
+    if (pfiles.length) {
+      parts.push('\nAttached files:\n' + pfiles.map(f => '--- ' + f.name + ' ---\n' + f.content).join('\n\n'));
+    }
+
     return parts.join('\n');
+  }
+
+  // ── project files ───────────────────────────────────────────────────────────
+  let _fileError = '';
+
+  function getProjectFiles() {
+    try { return JSON.parse(get('projectFiles') || '[]'); } catch(_) { return []; }
+  }
+
+  function removeProjectFile(idx) {
+    const files = getProjectFiles();
+    files.splice(idx, 1);
+    set('projectFiles', JSON.stringify(files));
+    openDrawer();
+  }
+
+  function attachProjectFile() {
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.multiple = true;
+    inp.accept = '.txt,.md,.json,.js,.py,.css,.html,.csv,.ts,.jsx,.tsx,.sh,.yaml,.toml';
+    inp.onchange = () => {
+      const auth   = getAuth();
+      const model  = getModel();
+      const ctx    = ctxForModel(auth.tier, model);
+      const maxChars = Math.floor(ctx * 0.5 * 4); // 50% context window in chars
+      const existing = getProjectFiles();
+      let totalChars = existing.reduce((s, f) => s + f.content.length, 0);
+      const toRead = Array.from(inp.files);
+      const rejected = [];
+      let pending = toRead.length;
+
+      toRead.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const content = e.target.result;
+          if (totalChars + content.length > maxChars) {
+            rejected.push(file.name);
+          } else {
+            totalChars += content.length;
+            existing.push({ name: file.name, content });
+          }
+          pending--;
+          if (pending === 0) {
+            set('projectFiles', JSON.stringify(existing));
+            if (rejected.length) {
+              const used   = Math.round(totalChars / 4);
+              const budget = Math.floor(ctx / 2);
+              _fileError = `"${rejected.join('", "')}" won't fit. Budget: ${budget.toLocaleString()} tokens (50% of ${ctx.toLocaleString()}), used: ${used.toLocaleString()}. Try a model with more context — Gemini 1.5 Pro (2M), Qwen3 235B (131K), or Llama 3.3 70B (131K).`;
+            }
+            openDrawer();
+          }
+        };
+        reader.readAsText(file);
+      });
+    };
+    inp.click();
   }
 
   // ── skin loader ─────────────────────────────────────────────────────────────
@@ -364,7 +427,28 @@ const settings = (() => {
     </div>
 
     <div class="sg-row">
-      <button class="sg-preset" style="width:100%;padding:8px 0" onclick="settings.attachFile()">📎 Attach file to next message</button>
+      <label>Project files <span class="sg-hint" style="text-transform:none;letter-spacing:0">(injected into every conversation — not in pairs)</span></label>
+      ${(() => {
+        const pfiles = getProjectFiles();
+        const auth   = getAuth();
+        const ctx    = ctxForModel(auth.tier, getModel());
+        const budget = Math.floor(ctx / 2);
+        const used   = Math.round(pfiles.reduce((s, f) => s + f.content.length, 0) / 4);
+        const err    = _fileError; _fileError = '';
+        return `
+        ${err ? `<div class="sg-file-error">${err}</div>` : ''}
+        ${pfiles.length ? `<div class="sg-file-list">${pfiles.map((f, i) => `
+          <div class="sg-file-item">
+            <span class="sg-file-name">${f.name}</span>
+            <span class="sg-file-size">${Math.round(f.content.length/1024)}k</span>
+            <button class="sg-file-remove" onclick="settings.removeProjectFile(${i})">✕</button>
+          </div>`).join('')}
+        </div>` : ''}
+        <div class="sg-file-budget">
+          ${used.toLocaleString()} / ${budget.toLocaleString()} tokens used (50% of ${ctx.toLocaleString()} ctx)
+        </div>
+        <button class="sg-preset" style="width:100%;padding:8px 0;margin-top:4px" onclick="settings.attachProjectFile()">📎 Attach project files</button>`;
+      })()}
     </div>
     ${sharedControls('n')}`;
   }
@@ -487,5 +571,6 @@ const settings = (() => {
   return { get, set, getAuth, getModel, getSystemPrompt, toggle, openDrawer, showTab, init,
            onSkinChange, onTierChange, onKeyChange, onUrlChange, onUrlPreset,
            onModelChange, onHFModelChange, onField, clearHistory, loadSkin, attachFile, discoverModels,
-           setFontSize, stepFontSize };
+           setFontSize, stepFontSize,
+           attachProjectFile, removeProjectFile, getProjectFiles };
 })();
