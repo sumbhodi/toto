@@ -81,6 +81,20 @@ html, body {
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
+/* ── collapsible sections ────────────────────────── */
+.sg-section { border: none; padding: 0; margin: 0; }
+.sg-section > summary.sg-section-label {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sg-section > summary.sg-section-label::after {
+  content: '▾'; font-size: 12px; opacity: 0.5;
+  transition: transform 0.15s;
+}
+.sg-section:not([open]) > summary.sg-section-label::after {
+  transform: rotate(-90deg);
+}
+
 /* ── inline row (two columns) ────────────────────── */
 .sg-row-inline {
   flex-direction: row; gap: 10px;

@@ -331,85 +331,90 @@ const settings = (() => {
   // ── info panel HTML ─────────────────────────────────────────────────────────
   function infoHTML() {
     return `
-    <div class="sg-section-label">🤖 Bot</div>
+    <details class="sg-section" open>
+      <summary class="sg-section-label">🤖 Bot</summary>
 
-    <details class="sg-tutorial" open>
-      <summary class="sg-tutorial-title">ℹ️ How this bot acts</summary>
-      <div class="sg-tutorial-body">
-        <p>The bot's core personality and instructions. This is the most powerful field — it shapes everything. Leave blank for a friendly generalist. Be specific to get a specialist.</p>
-        <p class="sg-hint">Example: "You are a no-nonsense editor. Be blunt. Never pad responses."</p>
+      <details class="sg-tutorial" open>
+        <summary class="sg-tutorial-title">ℹ️ How this bot acts</summary>
+        <div class="sg-tutorial-body">
+          <p>The bot's core personality and instructions. This is the most powerful field — it shapes everything. Leave blank for a friendly generalist. Be specific to get a specialist.</p>
+          <p class="sg-hint">Example: "You are a no-nonsense editor. Be blunt. Never pad responses."</p>
+        </div>
+      </details>
+      <div class="sg-row">
+        <textarea rows="3" onchange="settings.onField('persona',this.value)"
+          placeholder="You are a helpful, warm assistant.">${get('persona')}</textarea>
+      </div>
+
+      <div class="sg-row sg-row-inline">
+        <div>
+          <label>Bot name</label>
+          <input type="text" placeholder="optional"
+            value="${get('botName')}" onchange="settings.onField('botName',this.value)">
+        </div>
+        <div>
+          <label>Pronouns</label>
+          <input type="text" placeholder="they/them"
+            value="${get('botPronouns')}" onchange="settings.onField('botPronouns',this.value)">
+        </div>
+      </div>
+
+      <div class="sg-row">
+        <label>Backstory</label>
+        <textarea rows="2" onchange="settings.onField('botBackstory',this.value)"
+          placeholder="Optional. Give the bot a history or context that shapes how it speaks.">${get('botBackstory')}</textarea>
       </div>
     </details>
-    <div class="sg-row">
-      <textarea rows="3" onchange="settings.onField('persona',this.value)"
-        placeholder="You are a helpful, warm assistant.">${get('persona')}</textarea>
-    </div>
-
-    <div class="sg-row sg-row-inline">
-      <div>
-        <label>Bot name</label>
-        <input type="text" placeholder="optional"
-          value="${get('botName')}" onchange="settings.onField('botName',this.value)">
-      </div>
-      <div>
-        <label>Pronouns</label>
-        <input type="text" placeholder="they/them"
-          value="${get('botPronouns')}" onchange="settings.onField('botPronouns',this.value)">
-      </div>
-    </div>
-
-    <div class="sg-row">
-      <label>Backstory</label>
-      <textarea rows="2" onchange="settings.onField('botBackstory',this.value)"
-        placeholder="Optional. Give the bot a history or context that shapes how it speaks.">${get('botBackstory')}</textarea>
-    </div>
 
     <div class="sg-sep"></div>
-    <div class="sg-section-label">🧠 Wetware node</div>
 
-    <details class="sg-tutorial" open>
-      <summary class="sg-tutorial-title">ℹ️ About you</summary>
-      <div class="sg-tutorial-body">
-        <p>Tell the bot who it's talking to. The more it knows about you, the better it can calibrate. All fields optional — fill in what feels useful.</p>
+    <details class="sg-section" open>
+      <summary class="sg-section-label">🧠 Wetware node</summary>
+
+      <details class="sg-tutorial" open>
+        <summary class="sg-tutorial-title">ℹ️ About you</summary>
+        <div class="sg-tutorial-body">
+          <p>Tell the bot who it's talking to. The more it knows about you, the better it can calibrate. All fields optional — fill in what feels useful.</p>
+        </div>
+      </details>
+
+      <div class="sg-row sg-row-inline">
+        <div>
+          <label>Your name</label>
+          <input type="text" placeholder="optional"
+            value="${get('userName')}" onchange="settings.onField('userName',this.value)">
+        </div>
+        <div>
+          <label>Pronouns</label>
+          <input type="text" placeholder="they/them"
+            value="${get('userPronouns')}" onchange="settings.onField('userPronouns',this.value)">
+        </div>
+      </div>
+
+      <div class="sg-row">
+        <label>Who I am</label>
+        <textarea rows="2" onchange="settings.onField('userWho',this.value)"
+          placeholder="Background, role, context. 2–3 sentences.">${get('userWho')}</textarea>
+      </div>
+
+      <div class="sg-row">
+        <label>How I think / work</label>
+        <textarea rows="2" onchange="settings.onField('userHow',this.value)"
+          placeholder="Cognitive style, working patterns, what helps you.">${get('userHow')}</textarea>
+      </div>
+
+      <div class="sg-row">
+        <label>Preferences</label>
+        <textarea rows="2" onchange="settings.onField('userPrefs',this.value)"
+          placeholder="Communication style, format preferences, pet peeves.">${get('userPrefs')}</textarea>
+      </div>
+
+      <div class="sg-row">
+        <label>How I want to be treated</label>
+        <textarea rows="2" onchange="settings.onField('userTreatment',this.value)"
+          placeholder="e.g. gifted 5th grader — smart but explain jargon, no fluff.">${get('userTreatment')}</textarea>
       </div>
     </details>
-
-    <div class="sg-row sg-row-inline">
-      <div>
-        <label>Your name</label>
-        <input type="text" placeholder="optional"
-          value="${get('userName')}" onchange="settings.onField('userName',this.value)">
-      </div>
-      <div>
-        <label>Pronouns</label>
-        <input type="text" placeholder="they/them"
-          value="${get('userPronouns')}" onchange="settings.onField('userPronouns',this.value)">
-      </div>
-    </div>
-
-    <div class="sg-row">
-      <label>Who I am</label>
-      <textarea rows="2" onchange="settings.onField('userWho',this.value)"
-        placeholder="Background, role, context. 2–3 sentences.">${get('userWho')}</textarea>
-    </div>
-
-    <div class="sg-row">
-      <label>How I think / work</label>
-      <textarea rows="2" onchange="settings.onField('userHow',this.value)"
-        placeholder="Cognitive style, working patterns, what helps you.">${get('userHow')}</textarea>
-    </div>
-
-    <div class="sg-row">
-      <label>Preferences</label>
-      <textarea rows="2" onchange="settings.onField('userPrefs',this.value)"
-        placeholder="Communication style, format preferences, pet peeves.">${get('userPrefs')}</textarea>
-    </div>
-
-    <div class="sg-row">
-      <label>How I want to be treated</label>
-      <textarea rows="2" onchange="settings.onField('userTreatment',this.value)"
-        placeholder="e.g. gifted 5th grader — smart but explain jargon, no fluff.">${get('userTreatment')}</textarea>
-    </div>
 
     <div class="sg-sep"></div>
     <div class="sg-section-label">📋 Project</div>
