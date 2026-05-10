@@ -431,8 +431,15 @@ const toto = (() => {
         const pairs = bumpHFPairs();
         updateHFCounter();
         const hasKey = ['groq','mistral','gemini','cerebras','sambanova','openrouter'].some(k => settings.get(k));
-        if (hasKey && pairs === 1) appendMsg('assistant',
-          `🎉 Congratulations — you just built your own AI chatbot, with glass boxes and seams. Free models, your keys, your data.\n\nIf toto is useful, I accept tips: ⚙️ Settings → ☕ Support toto`);
+        if (hasKey && pairs === 1) {
+          const out = $(_skin.msgsId);
+          if (out) {
+            const d = document.createElement('div');
+            d.className = 'oz-msg oz-msg-bot';
+            d.innerHTML = `🎉 Congratulations — you just built your own AI chatbot, with <a href="https://square.link/u/7pZIFtbs" target="_blank" rel="noopener" style="color:#7EFFD4;text-decoration:underline">glass boxes and seams</a>. Free models, your keys, your data.<br><br>If toto is useful, I accept tips: ⚙️ Settings → ☕ Support toto`;
+            out.appendChild(d);
+          }
+        }
         if (isMommaMode()) {
           const hasSettings = ['userWho','userHow','userPronouns','userPrefs','userTreatment',
             'persona','project','projectGoal'].some(k => settings.get(k));
