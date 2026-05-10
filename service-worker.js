@@ -1,11 +1,10 @@
-const CACHE = 'toto-v1';
+const CACHE = 'toto-v2';
 const SHELL = [
   '/',
   '/index.html',
   '/chat.js',
   '/settings.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/home.png'
 ];
 
 self.addEventListener('install', e => {
