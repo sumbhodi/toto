@@ -249,8 +249,8 @@ html, body {
 
 /* ── messages ────────────────────────────────────── */
 .oz-msg { word-wrap: break-word; font-size: var(--fs-body); line-height: 1.7; }
-.oz-msg-u::before   { content: '~ '; color: rgba(160,220,140,0.6); }
-.oz-msg-bot::before { content: '= '; color: rgba(255,255,255,0.3); }
+.oz-msg-u::before   { content: '~ '; opacity: 0.4; }
+.oz-msg-bot::before { content: '= '; opacity: 0.4; }
 
 /* ── shared bot input ────────────────────────────── */
 .bot-input {

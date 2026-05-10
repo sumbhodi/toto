@@ -53,7 +53,7 @@
 }
 .hist-msgs::-webkit-scrollbar { width: 3px; }
 .hist-msgs::-webkit-scrollbar-thumb { background: var(--hist-dim); border-radius: 2px; }
-.p-hist .oz-msg-u   { display: block; color: #8fba7a; font-size: var(--fs-body); margin-bottom: 3px; font-style: italic; }
+.p-hist .oz-msg-u   { display: block; color: #b8956a; font-size: var(--fs-body); margin-bottom: 3px; font-style: italic; }
 .p-hist .oz-msg-bot { display: block; color: var(--hist-ink); margin-bottom: 10px; }
 
 /* slider */
