@@ -160,6 +160,7 @@ const toto = (() => {
 
   // ── HF demo helpers ─────────────────────────────────────────────────────────
   function isHFDemo() { return window.location.hostname.endsWith('.hf.space'); }
+  function isMommaMode() { return (settings.get('userName') || '').toLowerCase() === 'momma'; }
   function getHFPairs() { return parseInt(sessionStorage.getItem('toto_hf_pairs') || '0'); }
   function bumpHFPairs() { const n = getHFPairs() + 1; sessionStorage.setItem('toto_hf_pairs', String(n)); return n; }
   function isDefaultPersona() { const p = settings.get('persona'); return !p || p === DEFAULT_PERSONA; }
@@ -197,7 +198,7 @@ const toto = (() => {
   function updateHFCounter() {
     if (!_skin) return;
     const el = document.getElementById(_skin.skinId + '-hf-count');
-    if (el) el.textContent = getHFPairs() + '/' + HF_PAIR_LIMIT;
+    if (el) el.textContent = isMommaMode() ? '∞' : getHFPairs() + '/' + HF_PAIR_LIMIT;
   }
 
   // ── executive summary — always-visible injection at top of chat ─────────────
@@ -373,7 +374,7 @@ const toto = (() => {
     const inp = $(_skin.inputId);
     const text = (extraText || inp?.value || '').trim();
     if (!text || _busy) return;
-    if (isHFDemo() && getHFPairs() >= HF_PAIR_LIMIT) { showHFBlock(); return; }
+    if (isHFDemo() && !isMommaMode() && getHFPairs() >= HF_PAIR_LIMIT) { showHFBlock(); return; }
     if (inp) inp.value = '';
 
     const auth = settings.getAuth();
@@ -429,9 +430,14 @@ const toto = (() => {
       if (isHFDemo()) {
         const pairs = bumpHFPairs();
         updateHFCounter();
-        if (pairs === 1) showPair1Nudge();
-        if (pairs === 5) showPair5Nudge();
-        if (pairs === 9) showPair9Warn();
+        if (isMommaMode()) {
+          if (pairs === 1) appendMsg('assistant',
+            `👋 Hey! Fill in ⚙️ Settings → your name, who you are, how you think. The more you share, the better I can help. No rush — I'll be here.`);
+        } else {
+          if (pairs === 1) showPair1Nudge();
+          if (pairs === 5) showPair5Nudge();
+          if (pairs === 9) showPair9Warn();
+        }
       }
     } catch(e) {
       if (e.name !== 'AbortError') {
@@ -494,7 +500,7 @@ const toto = (() => {
       const ctrl = document.createElement('div');
       ctrl.style.cssText = 'display:flex;align-items:center;gap:4px;flex-shrink:0';
       const hfCountHtml = isHFDemo()
-        ? `<span id="${config.skinId}-hf-count" style="font-size:13px;opacity:0.55;padding-right:2px">${getHFPairs()}/${HF_PAIR_LIMIT}</span>`
+        ? `<span id="${config.skinId}-hf-count" style="font-size:13px;opacity:0.55;padding-right:2px">${isMommaMode() ? '∞' : getHFPairs() + '/' + HF_PAIR_LIMIT}</span>`
         : '';
       ctrl.innerHTML =
         hfCountHtml +

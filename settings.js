@@ -148,7 +148,7 @@ const settings = (() => {
   }
 
   // ── tab state ───────────────────────────────────────────────────────────────
-  let _activeTab = 'interface';
+  let _activeTab = 'info';
 
   function showTab(name) {
     _activeTab = name;
@@ -329,43 +329,6 @@ const settings = (() => {
   function infoHTML() {
     return `
     <details class="sg-section" open>
-      <summary class="sg-section-label">🤖 Bot</summary>
-
-      <details class="sg-tutorial" open>
-        <summary class="sg-tutorial-title">ℹ️ How this bot acts</summary>
-        <div class="sg-tutorial-body">
-          <p>The bot's core personality and instructions. This is the most powerful field — it shapes everything. Leave blank for a friendly generalist. Be specific to get a specialist.</p>
-          <p class="sg-hint">Example: "You are a no-nonsense editor. Be blunt. Never pad responses."</p>
-        </div>
-      </details>
-      <div class="sg-row">
-        <textarea rows="5" onchange="settings.onField('persona',this.value)"
-          placeholder="${DEFAULT_PERSONA}">${get('persona') || DEFAULT_PERSONA}</textarea>
-      </div>
-
-      <div class="sg-row sg-row-inline">
-        <div>
-          <label>Bot name</label>
-          <input type="text" placeholder="optional"
-            value="${get('botName')}" onchange="settings.onField('botName',this.value)">
-        </div>
-        <div>
-          <label>Pronouns</label>
-          <input type="text" placeholder="they/them"
-            value="${get('botPronouns')}" onchange="settings.onField('botPronouns',this.value)">
-        </div>
-      </div>
-
-      <div class="sg-row">
-        <label>Backstory</label>
-        <textarea rows="2" onchange="settings.onField('botBackstory',this.value)"
-          placeholder="Optional. Give the bot a history or context that shapes how it speaks.">${get('botBackstory')}</textarea>
-      </div>
-    </details>
-
-    <div class="sg-sep"></div>
-
-    <details class="sg-section" open>
       <summary class="sg-section-label">🧠 Wetware node</summary>
 
       <details class="sg-tutorial" open>
@@ -454,6 +417,43 @@ const settings = (() => {
         <button class="sg-preset" style="width:100%;padding:8px 0;margin-top:4px" onclick="settings.attachProjectFile()">📎 Attach project files</button>`;
       })()}
     </div>
+    </details>
+
+    <div class="sg-sep"></div>
+
+    <details class="sg-section">
+      <summary class="sg-section-label">🤖 Bot</summary>
+
+      <details class="sg-tutorial" open>
+        <summary class="sg-tutorial-title">ℹ️ How this bot acts</summary>
+        <div class="sg-tutorial-body">
+          <p>The bot's core personality and instructions. This is the most powerful field — it shapes everything. Leave blank for a friendly generalist. Be specific to get a specialist.</p>
+          <p class="sg-hint">Example: "You are a no-nonsense editor. Be blunt. Never pad responses."</p>
+        </div>
+      </details>
+      <div class="sg-row">
+        <textarea rows="5" onchange="settings.onField('persona',this.value)"
+          placeholder="${DEFAULT_PERSONA}">${get('persona') || DEFAULT_PERSONA}</textarea>
+      </div>
+
+      <div class="sg-row sg-row-inline">
+        <div>
+          <label>Bot name</label>
+          <input type="text" placeholder="optional"
+            value="${get('botName')}" onchange="settings.onField('botName',this.value)">
+        </div>
+        <div>
+          <label>Pronouns</label>
+          <input type="text" placeholder="they/them"
+            value="${get('botPronouns')}" onchange="settings.onField('botPronouns',this.value)">
+        </div>
+      </div>
+
+      <div class="sg-row">
+        <label>Backstory</label>
+        <textarea rows="2" onchange="settings.onField('botBackstory',this.value)"
+          placeholder="Optional. Give the bot a history or context that shapes how it speaks.">${get('botBackstory')}</textarea>
+      </div>
     </details>
     ${sharedControls('n')}`;
   }
