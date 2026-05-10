@@ -431,7 +431,9 @@ const toto = (() => {
         const pairs = bumpHFPairs();
         updateHFCounter();
         if (isMommaMode()) {
-          const hasInfo = ['userWho','userHow','userPronouns','userPrefs','userTreatment'].some(k => settings.get(k));
+          const hasInfo = ['userWho','userHow','userPronouns','userPrefs','userTreatment',
+            'persona','project','projectGoal',
+            'groq','mistral','gemini','cerebras','sambanova','openrouter'].some(k => settings.get(k));
           if (pairs === 1 && !hasInfo) appendMsg('assistant',
             `👋 Hey! Fill in ⚙️ Settings → your name, who you are, how you think. The more you share, the better I can help. No rush — I'll be here.`);
         } else {
