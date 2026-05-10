@@ -500,6 +500,8 @@ const settings = (() => {
     document.getElementById('settings-drawer').classList.remove('open');
     const bd = document.getElementById('sg-backdrop');
     if (bd) bd.style.display = 'none';
+    toto.showExecSummary();
+    toto.updateHFCounter();
   }
   function toggle() {
     const d = document.getElementById('settings-drawer');
