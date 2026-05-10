@@ -389,5 +389,5 @@ const toto = (() => {
   }
 
   return { mount, mountResize, mountToggle, setJewel, appendMsg, updateLastMsg, compressHistory,
-           send: doSend, clearHistory: () => { _history = []; saveHistory(); } };
+           send: doSend, clearHistory: () => { _history = []; saveHistory(); if (_skin) { const out = $(_skin.msgsId); if (out) out.innerHTML = ''; } } };
 })();
