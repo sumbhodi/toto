@@ -417,7 +417,9 @@ const settings = (() => {
     </details>
 
     <div class="sg-sep"></div>
-    <div class="sg-section-label">📋 Project</div>
+
+    <details class="sg-section" open>
+      <summary class="sg-section-label">📋 Project</summary>
 
     <div class="sg-row">
       <label>What we're doing</label>
@@ -455,6 +457,7 @@ const settings = (() => {
         <button class="sg-preset" style="width:100%;padding:8px 0;margin-top:4px" onclick="settings.attachProjectFile()">📎 Attach project files</button>`;
       })()}
     </div>
+    </details>
     ${sharedControls('n')}`;
   }
 

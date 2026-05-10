@@ -54,8 +54,8 @@
 
 .p-neo .oz-msg-u   { display: block; color: #7EFFD4; margin-bottom: 2px; }
 .p-neo .oz-msg-bot { display: block; color: #00FF88; margin-bottom: 6px; }
-.p-neo .oz-msg-u::before   { content: '~ '; color: rgba(126,255,212,0.5); }
-.p-neo .oz-msg-bot::before { content: '= '; color: rgba(0,255,136,0.5); }
+.p-neo .oz-msg-u::before   { content: '~ '; color: #3a8060; }
+.p-neo .oz-msg-bot::before { content: '= '; color: #007a40; }
 
 /* resize handle */
 .p-neo .panel-resize-h {
@@ -158,7 +158,7 @@
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
   background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 3px);
 }
-.neo-input::placeholder { color: rgba(0,255,136,0.25); }
+.neo-input::placeholder { color: #1a5c35; }
 .neo-input:focus { border-color: rgba(0,255,136,0.5); }
 
 .neo-send {
