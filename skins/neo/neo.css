@@ -52,10 +52,10 @@
 .neo-out::-webkit-scrollbar { width: 3px; }
 .neo-out::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.3); border-radius: 2px; }
 
-.p-neo .oz-msg-u   { display: block; color: rgba(0,200,100,0.45); opacity: 0.55; margin-bottom: 2px; }
+.p-neo .oz-msg-u   { display: block; color: #7EFFD4; margin-bottom: 2px; }
 .p-neo .oz-msg-bot { display: block; color: #00FF88; margin-bottom: 6px; }
-.p-neo .oz-msg-u::before   { content: '~ '; opacity: 0.7; }
-.p-neo .oz-msg-bot::before { content: '→ '; }
+.p-neo .oz-msg-u::before   { content: '~ '; color: rgba(126,255,212,0.5); }
+.p-neo .oz-msg-bot::before { content: '= '; color: rgba(0,255,136,0.5); }
 
 /* resize handle */
 .p-neo .panel-resize-h {
