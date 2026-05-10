@@ -322,6 +322,22 @@ const settings = (() => {
 
       </div>
     </details>
+
+    <div class="sg-sep"></div>
+    <details class="sg-byok">
+      <summary class="sg-byok-title">☕ Support toto <span class="sg-byok-hint">— tip the creator</span></summary>
+      <div class="sg-byok-body" style="display:flex;flex-direction:column;gap:8px;padding-top:8px">
+        <a href="https://square.link/u/7pZIFtbs" target="_blank" rel="noopener"
+           style="display:block;text-align:center;background:rgba(126,255,212,0.1);border:1px solid rgba(126,255,212,0.25);color:#7EFFD4;border-radius:6px;padding:10px;font-size:var(--fs-tab);text-decoration:none">
+          ☕ Buy me a coffee — $5 tip
+        </a>
+        <a href="https://square.link/u/yREg71er" target="_blank" rel="noopener"
+           style="display:block;text-align:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#bbb;border-radius:6px;padding:10px;font-size:var(--fs-tab);text-decoration:none">
+          ♻️ Subscribe — $1.99/month
+        </a>
+      </div>
+    </details>
+
     ${sharedControls('i')}`;
   }
 

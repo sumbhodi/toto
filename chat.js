@@ -431,6 +431,8 @@ const toto = (() => {
         const pairs = bumpHFPairs();
         updateHFCounter();
         const hasKey = ['groq','mistral','gemini','cerebras','sambanova','openrouter'].some(k => settings.get(k));
+        if (hasKey && pairs === 1) appendMsg('assistant',
+          `🎉 Congratulations — you just built your own AI chatbot, with glass boxes and seams. Free models, your keys, your data.\n\nIf toto is useful, I accept tips: ⚙️ Settings → ☕ Support toto`);
         if (isMommaMode()) {
           const hasSettings = ['userWho','userHow','userPronouns','userPrefs','userTreatment',
             'persona','project','projectGoal'].some(k => settings.get(k));
