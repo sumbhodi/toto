@@ -274,6 +274,12 @@ const toto = (() => {
     _skin = config;
     loadHistory(config.skinId);
 
+    // render persisted history to display
+    const out = $(config.msgsId);
+    if (out && _history.length) {
+      _history.forEach(m => appendMsg(m.role === 'user' ? 'user' : 'assistant', m.content));
+    }
+
     const inp = $(config.inputId);
     const send = $(config.sendId);
     const stop = $(config.stopId);
