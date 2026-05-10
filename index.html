@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>toto</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#020c14">
@@ -46,7 +46,7 @@ html, body {
 .toto-collapsed { height: auto !important; min-height: 0 !important; flex-grow: 0 !important; flex-shrink: 0 !important; }
 .toto-exec-summary { border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
 
-#skin-mount { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; }
+#skin-mount { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0); }
 .ph { min-width: 260px; }
 
 #sg-backdrop { display: none; position: fixed; inset: 0; z-index: 199; }
