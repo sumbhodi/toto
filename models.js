@@ -1,8 +1,11 @@
 // models.js — static model list per auth tier
 const MODELS = {
   hf: [
-    { id: 'meta-llama/Llama-3.1-8B-Instruct', name: 'Llama 3.1 8B',  ctx: 131072 },
-    { id: 'Qwen/Qwen2.5-7B-Instruct',          name: 'Qwen 2.5 7B',   ctx: 131072 },
+    { id: 'meta-llama/Llama-3.3-70B-Instruct', name: 'Llama 3.3 70B',  ctx: 131072 },
+    { id: 'Qwen/Qwen3-32B',                     name: 'Qwen3 32B',      ctx: 131072 },
+    { id: 'Qwen/Qwen3-235B-A22B-Instruct-2507', name: 'Qwen3 235B',     ctx: 131072 },
+    { id: 'meta-llama/Llama-3.1-8B-Instruct',  name: 'Llama 3.1 8B',   ctx: 131072 },
+    { id: 'Qwen/Qwen2.5-7B-Instruct',           name: 'Qwen 2.5 7B',    ctx: 131072 },
   ],
   github: [
     { id: 'gpt-4o-mini',                      name: 'GPT-4o mini',    ctx: 128000 },
