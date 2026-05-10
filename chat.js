@@ -451,7 +451,7 @@ const toto = (() => {
       }
     }
 
-    // inject 📎 🗜️ ⚙️ ▲ into skin header
+    // inject 📎 🗜️ ⚙️ into skin header + click empty topbar to collapse
     const phRow = card?.querySelector('.ph-row1');
     if (phRow) {
       const ctrl = document.createElement('div');
@@ -459,10 +459,13 @@ const toto = (() => {
       ctrl.innerHTML =
         `<button class="toto-btn" title="Attach file"      onclick="settings.attachFile()">📎</button>` +
         `<button class="toto-btn" title="Compress history" onclick="toto.compressHistory()">🗜️</button>` +
-        `<button class="toto-btn" title="Settings"         onclick="settings.toggle()">⚙️</button>` +
-        `<button class="toto-btn" title="Collapse / expand"
-           onclick="(function(b){var c=document.getElementById('${config.cardId}');c.classList.toggle('toto-collapsed');b.textContent=c.classList.contains('toto-collapsed')?'▼':'▲'})(this)">▲</button>`;
+        `<button class="toto-btn" title="Settings"         onclick="settings.toggle()">⚙️</button>`;
       phRow.appendChild(ctrl);
+      phRow.style.cursor = 'pointer';
+      phRow.addEventListener('click', e => {
+        if (e.target.closest('button, input, select, a')) return;
+        card.classList.toggle('toto-collapsed');
+      });
     }
 
     setJewel('on'); // always green in toto
