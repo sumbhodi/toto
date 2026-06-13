@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>toto</title>
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#020c14">
-  <link rel="apple-touch-icon" href="/icons/home.png">
+  <link rel="apple-touch-icon" href="icons/home.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
@@ -185,13 +185,14 @@ html, body {
 <div id="skin-mount"></div>
 <div id="settings-drawer"></div>
 
+<script src="models.js"></script>
 <script src="chat.js"></script>
 <script src="settings.js"></script>
 <script>
   window._totoClip = '';
   settings.init();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
   }
 </script>
 </body>

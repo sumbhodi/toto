@@ -1,116 +1,29 @@
-// models.js — static model list per auth tier
-const MODELS = {
-  hf: [
-    { id: 'meta-llama/Llama-3.3-70B-Instruct', name: 'Llama 3.3 70B',  ctx: 131072 },
-    { id: 'Qwen/Qwen3-32B',                     name: 'Qwen3 32B',      ctx: 131072 },
-    { id: 'Qwen/Qwen3-235B-A22B-Instruct-2507', name: 'Qwen3 235B',     ctx: 131072 },
-    { id: 'meta-llama/Llama-3.1-8B-Instruct',  name: 'Llama 3.1 8B',   ctx: 131072 },
-    { id: 'Qwen/Qwen2.5-7B-Instruct',           name: 'Qwen 2.5 7B',    ctx: 131072 },
-  ],
-  github: [
-    { id: 'gpt-4o-mini',                      name: 'GPT-4o mini',    ctx: 128000 },
-    { id: 'meta-llama-3.3-70b-instruct',       name: 'Llama 3.3 70B', ctx: 131072 },
-    { id: 'Phi-4',                             name: 'Phi-4',          ctx: 16384  },
-    { id: 'mistral-small-2503',                name: 'Mistral Small',  ctx: 32768  },
-    { id: 'AI21-Jamba-1.5-Mini',               name: 'Jamba Mini',     ctx: 256000 },
-  ],
-  anthropic: [
-    { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', ctx: 200000 },
-    { id: 'claude-sonnet-4-6',         name: 'Claude Sonnet 4.6', ctx: 200000 },
-    { id: 'claude-opus-4-7',           name: 'Claude Opus 4.7',  ctx: 200000 },
-  ],
-  openai: [
-    { id: 'gpt-4o-mini', name: 'GPT-4o mini', ctx: 128000 },
-    { id: 'gpt-4o',      name: 'GPT-4o',      ctx: 128000 },
-  ],
-  // local = OpenAI-compatible endpoint. Covers Ollama (/v1/), LM Studio, MLX LM, llama.cpp.
-  // Model list discovered live from /v1/models or typed manually.
-  local: [],
-};
+// ══════════════════════════════════════════════════════════════════════
+//  chat.js · toto · core chat engine
+//  ────────────────────────────────────────────────────────────────────
+//  PAGE 0 — TOC
+//    resolveBYOK ......... 'groq:model' → { url, key, model, providerId }
+//    appendMsg/update .... render a message bubble (textContent — XSS-safe)
+//    setJewel ............ status light: on · waiting · error
+//    showExecSummary ..... pin the system prompt at the top of the chat
+//    history ............. roughTokens · trimHistory · save/load · compress
+//    streaming ........... readSSE · streamOpenAI · streamAnthropic
+//    oneshot ............. one-prompt call (used by compress)
+//    doSend .............. the send path — resolve provider, stream reply
+//    mount ............... wire a skin's DOM to the engine
+//    mountToggle/Resize .. shared skin UI helpers
+//  ────────────────────────────────────────────────────────────────────
+//  FOR HUMANS
+//    the engine. it talks to whatever provider the key points at,
+//    straight from the browser. no server. the key never leaves the device.
+//
+//  FOR AI
+//    1. never send without a key — settings.getAuth() / resolveBYOK guard it.
+//    2. render replies with textContent, never innerHTML. the text is untrusted.
+//    3. all state persists to localStorage (history here, keys in settings).
+//    4. model id 'provider:model' → BYOK direct call; otherwise use the tier.
+// ══════════════════════════════════════════════════════════════════════
 
-// quick-pick URL presets shown in settings for local tier
-const LOCAL_PRESETS = [
-  { label: 'Ollama',     url: 'http://localhost:11434' },
-  { label: 'LM Studio',  url: 'http://localhost:1234'  },
-  { label: 'MLX LM',     url: 'http://localhost:8080'  },
-];
-
-function defaultModel(tier) {
-  return (MODELS[tier] || [])[0]?.id || '';
-}
-
-function ctxForModel(tier, modelId) {
-  // check BYOK providers first (model id is 'provider:model')
-  if (modelId && modelId.includes(':')) {
-    const [pid, mid] = modelId.split(':');
-    const p = BYOK_PROVIDERS.find(p => p.id === pid);
-    return p?.models.find(m => m.id === mid)?.ctx || 131072;
-  }
-  const found = (MODELS[tier] || []).find(m => m.id === modelId);
-  return found?.ctx || 32000;
-}
-
-// ── BYOK providers — free API keys, OpenAI-compatible ─────────────────────────
-const BYOK_PROVIDERS = [
-  { id: 'groq', name: 'Groq',
-    url: 'https://api.groq.com/openai/v1/chat/completions',
-    models: [
-      { id: 'llama-3.3-70b-versatile',       name: 'Llama 3.3 70B',    ctx: 131072 },
-      { id: 'llama-4-scout-17b-16e-instruct', name: 'Llama 4 Scout',    ctx: 131072 },
-      { id: 'qwen-qwq-32b',                   name: 'Qwen QwQ 32B',     ctx: 131072 },
-      { id: 'gemma2-9b-it',                   name: 'Gemma 2 9B',       ctx: 8192   },
-      { id: 'llama-3.1-8b-instant',           name: 'Llama 3.1 8B',     ctx: 131072 },
-    ]},
-  { id: 'gemini', name: 'Gemini',
-    url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-    models: [
-      { id: 'gemini-2.5-flash',      name: 'Gemini 2.5 Flash',      ctx: 1048576 },
-      { id: 'gemini-2.0-flash',      name: 'Gemini 2.0 Flash',      ctx: 1048576 },
-      { id: 'gemini-2.0-flash-lite', name: 'Gemini 2.0 Flash Lite', ctx: 1048576 },
-      { id: 'gemini-1.5-pro',        name: 'Gemini 1.5 Pro',        ctx: 2097152 },
-    ]},
-  { id: 'mistral', name: 'Mistral',
-    url: 'https://api.mistral.ai/v1/chat/completions',
-    models: [
-      { id: 'mistral-small-latest',  name: 'Mistral Small',  ctx: 32768  },
-      { id: 'mistral-medium-latest', name: 'Mistral Medium', ctx: 32768  },
-      { id: 'open-mistral-nemo',     name: 'Mistral Nemo',   ctx: 131072 },
-      { id: 'open-codestral-mamba',  name: 'Codestral Mamba',ctx: 256000 },
-    ]},
-  { id: 'cerebras', name: 'Cerebras',
-    url: 'https://api.cerebras.ai/v1/chat/completions',
-    models: [
-      { id: 'llama-4-scout-17b-16e-instruct', name: 'Llama 4 Scout',  ctx: 131072 },
-      { id: 'llama3.1-70b',                   name: 'Llama 3.1 70B',  ctx: 131072 },
-      { id: 'llama3.1-8b',                    name: 'Llama 3.1 8B',   ctx: 131072 },
-      { id: 'qwen-3-32b',                     name: 'Qwen 3 32B',     ctx: 131072 },
-    ]},
-  { id: 'sambanova', name: 'SambaNova',
-    url: 'https://api.sambanova.ai/v1/chat/completions',
-    models: [
-      { id: 'Meta-Llama-3.3-70B-Instruct',  name: 'Llama 3.3 70B',  ctx: 131072 },
-      { id: 'Meta-Llama-3.1-405B-Instruct', name: 'Llama 3.1 405B', ctx: 131072 },
-      { id: 'Qwen2.5-72B-Instruct',         name: 'Qwen 2.5 72B',   ctx: 131072 },
-      { id: 'DeepSeek-R1',                  name: 'DeepSeek R1',     ctx: 131072 },
-    ]},
-  { id: 'openrouter', name: 'OpenRouter',
-    url: 'https://openrouter.ai/api/v1/chat/completions',
-    models: [
-      { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (free)', ctx: 131072 },
-      { id: 'deepseek/deepseek-r1:free',               name: 'DeepSeek R1 (free)',   ctx: 163840 },
-      { id: 'google/gemma-3-27b-it:free',              name: 'Gemma 3 27B (free)',   ctx: 131072 },
-      { id: 'mistralai/mistral-7b-instruct:free',      name: 'Mistral 7B (free)',    ctx: 32768  },
-      { id: 'microsoft/phi-3-mini-128k-instruct:free', name: 'Phi-3 Mini (free)',    ctx: 131072 },
-    ]},
-];
-// ── HF demo config + default persona ────────────────────────────────────────
-const HF_PAIR_LIMIT = 10;
-const DEFAULT_PERSONA =
-`You are a knowledgeable, warm assistant. You know almost everything. You have no persistent memory — each conversation starts completely fresh.
-
-First response only: briefly introduce yourself. Let the user know you start every session with no memory of past chats, and that they can share context about themselves in ⚙️ Settings to make you more useful to them.`;
-
-// chat.js — toto core engine
 const toto = (() => {
   const $ = id => document.getElementById(id);
   let _skin = null, _history = [], _controller = null, _busy = false;
@@ -158,49 +71,6 @@ const toto = (() => {
     if (state === 'error')   { r.classList.add('lit'); }
   }
 
-  // ── HF demo helpers ─────────────────────────────────────────────────────────
-  function isHFDemo() { return window.location.hostname.endsWith('.hf.space'); }
-  function isMommaMode() { return (settings.get('userName') || '').toLowerCase() === 'momma'; }
-  function getHFPairs() { return parseInt(sessionStorage.getItem('toto_hf_pairs') || '0'); }
-  function bumpHFPairs() { const n = getHFPairs() + 1; sessionStorage.setItem('toto_hf_pairs', String(n)); return n; }
-  function isDefaultPersona() { const p = settings.get('persona'); return !p || p === DEFAULT_PERSONA; }
-
-  function showPair1Nudge() {
-    appendMsg('assistant',
-      `🆓 Demo mode — ${HF_PAIR_LIMIT} free pairs, shared tokens. Leave some for the next person.\n\n` +
-      `Liked it? Get your own free API key for unlimited conversations:\n` +
-      `⚙️ Settings → 🔑 Free API Keys  (Groq, Gemini, Mistral and more — all free, no credit card)\n\n` +
-      `"I'm gonna build my own chatbot — with blackjack and API keys!"  — Bender`);
-  }
-
-  function showPair5Nudge() {
-    appendMsg('assistant',
-      `⏳ Halfway there — 5 of ${HF_PAIR_LIMIT} free pairs used.\n\n` +
-      `If toto is useful, grab your own free API key and never hit this wall:\n` +
-      `⚙️ Settings → 🔑 Free API Keys — Groq, Gemini, Mistral and more.`);
-  }
-
-  function showPair9Warn() {
-    appendMsg('assistant',
-      `⚠️ Last pair — 9 of ${HF_PAIR_LIMIT} used. Next message ends the demo session.\n\n` +
-      `⚙️ Settings → 🔑 Free API Keys to continue without interruption.`);
-  }
-
-  function showHFBlock() {
-    appendMsg('assistant',
-      `⏸ ${HF_PAIR_LIMIT} free pairs used this session.\n\n` +
-      `Refresh for ${HF_PAIR_LIMIT} more — or get your own free API key for unlimited conversations.\n` +
-      `Takes 2 minutes. No credit card needed.\n\n` +
-      `Opening Settings → 🔑 Free API Keys now…`);
-    setTimeout(() => settings.scrollToBYOK(), 500);
-  }
-
-  function updateHFCounter() {
-    if (!_skin) return;
-    const el = document.getElementById(_skin.skinId + '-hf-count');
-    if (el) el.textContent = isMommaMode() ? '∞' : getHFPairs() + '/' + HF_PAIR_LIMIT;
-  }
-
   // ── executive summary — always-visible injection at top of chat ─────────────
   function showExecSummary() {
     if (!_skin) return;
@@ -241,7 +111,7 @@ const toto = (() => {
     try { _history = JSON.parse(localStorage.getItem('toto_hist') || '[]'); } catch(_) { _history = []; }
   }
 
-  // ── compress ────────────────────────────────────────────────────────────────
+  // ── compress — fold the middle of a long chat into a summary ────────────────
   async function compressHistory() {
     if (_busy || _history.length < 6) return;
     const auth = settings.getAuth();
@@ -262,6 +132,9 @@ const toto = (() => {
   }
 
   // ── streaming helpers ───────────────────────────────────────────────────────
+  // OpenAI-compatible SSE: 'data: {json}\n' lines, '[DONE]' ends it.
+  // covers github · openai · local · every BYOK provider.
+
   async function readSSE(resp, onChunk) {
     const reader = resp.body.getReader(), dec = new TextDecoder();
     let buf = '';
@@ -296,6 +169,8 @@ const toto = (() => {
     await readSSE(resp, onChunk);
   }
 
+  // Anthropic has its own event shape — direct from the browser via the
+  // dangerous-direct-browser-access header. the key still never hits a server.
   async function streamAnthropic(key, model, messages, sys, onChunk, signal) {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       signal,
@@ -326,47 +201,24 @@ const toto = (() => {
     }
   }
 
-  async function streamOllama(url, model, messages, sys, onChunk, signal) {
-    const resp = await fetch(url + '/api/chat', {
-      signal, method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, stream: true,
-        messages: [{ role: 'system', content: sys }, ...messages] })
-    });
-    if (!resp.ok) throw new Error(await resp.text());
-    const reader = resp.body.getReader(), dec = new TextDecoder();
-    let buf = '';
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buf += dec.decode(value, { stream: true });
-      const lines = buf.split('\n');
-      buf = lines.pop();
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        try {
-          const j = JSON.parse(line);
-          if (j.message?.content) onChunk(j.message.content);
-        } catch(_) {}
-      }
-    }
-  }
-
+  // one prompt, one reply — no streaming to UI. used by compressHistory.
   async function oneshot(auth, model, prompt) {
     const sys = 'You are a helpful assistant.';
     let text = '';
-    const noop = () => {};
     const ctrl = new AbortController();
     if (auth.tier === 'anthropic') {
       await streamAnthropic(auth.key, model, [{ role: 'user', content: prompt }], sys, c => text += c, ctrl.signal);
     } else {
-      const url = auth.tier === 'github'  ? 'https://models.inference.ai.azure.com/chat/completions'
-                : auth.tier === 'hf'      ? '/v1/chat/completions'
-                : auth.tier === 'local'   ? auth.url.replace(/\/$/, '') + '/v1/chat/completions'
-                :                           'https://api.openai.com/v1/chat/completions';
-      await streamOpenAI(url, auth.key || '', model, [{ role: 'user', content: prompt }], sys, c => text += c, ctrl.signal);
+      await streamOpenAI(urlForTier(auth), auth.key || '', model, [{ role: 'user', content: prompt }], sys, c => text += c, ctrl.signal);
     }
     return text;
+  }
+
+  // OpenAI-compatible endpoint for a non-anthropic, non-BYOK tier.
+  function urlForTier(auth) {
+    return auth.tier === 'github' ? 'https://models.inference.ai.azure.com/chat/completions'
+         : auth.tier === 'local'  ? auth.url.replace(/\/$/, '') + '/v1/chat/completions'
+         :                          'https://api.openai.com/v1/chat/completions';
   }
 
   // ── main send ───────────────────────────────────────────────────────────────
@@ -374,7 +226,6 @@ const toto = (() => {
     const inp = $(_skin.inputId);
     const text = (extraText || inp?.value || '').trim();
     if (!text || _busy) return;
-    if (isHFDemo() && !isMommaMode() && getHFPairs() >= HF_PAIR_LIMIT) { showHFBlock(); return; }
     if (inp) inp.value = '';
 
     const auth = settings.getAuth();
@@ -382,12 +233,14 @@ const toto = (() => {
 
     // resolve BYOK provider from model prefix (e.g. 'groq:llama-3.3-70b-versatile')
     const byok = resolveBYOK(model);
-    if (!byok && !auth.key && auth.tier !== 'local' && auth.tier !== 'hf') {
-      appendMsg('assistant', '[No API key — open ⚙️ settings and add one.]');
+    if (!byok && !auth.key && auth.tier !== 'local') {
+      appendMsg('assistant', '[No API key — open ⚙️ Settings and add one.]');
+      settings.openDrawer();
       return;
     }
     if (byok && !byok.key) {
-      appendMsg('assistant', `[No key for ${byok.providerId} — add it in ⚙️ settings → Free API Keys]`);
+      appendMsg('assistant', `[No key for ${byok.providerId} — open ⚙️ Settings → Free API Keys]`);
+      settings.openDrawer();
       return;
     }
 
@@ -417,42 +270,12 @@ const toto = (() => {
       } else if (auth.tier === 'anthropic') {
         await streamAnthropic(auth.key, model, _history, sys, onChunk, _controller.signal);
       } else {
-        const url = auth.tier === 'github'  ? 'https://models.inference.ai.azure.com/chat/completions'
-                  : auth.tier === 'hf'      ? '/v1/chat/completions'
-                  : auth.tier === 'local'   ? auth.url.replace(/\/$/, '') + '/v1/chat/completions'
-                  :                           'https://api.openai.com/v1/chat/completions';
-        await streamOpenAI(url, auth.key || '', model, _history, sys, onChunk, _controller.signal);
+        await streamOpenAI(urlForTier(auth), auth.key || '', model, _history, sys, onChunk, _controller.signal);
       }
 
       _history.push({ role: 'assistant', content: botText });
       saveHistory();
       setJewel('on');
-      if (isHFDemo()) {
-        const pairs = bumpHFPairs();
-        updateHFCounter();
-        const hasKey = ['groq','mistral','gemini','cerebras','sambanova','openrouter'].some(k => settings.get(k));
-        if (hasKey && pairs === 1) {
-          const out = $(_skin.msgsId);
-          if (out) {
-            const d = document.createElement('div');
-            d.className = 'oz-msg oz-msg-bot';
-            d.innerHTML = `🎉 Congratulations — you just built your own AI chatbot, with <a href="https://square.link/u/7pZIFtbs" target="_blank" rel="noopener" style="color:#7EFFD4;text-decoration:underline">glass boxes and seams</a>. Free models, your keys, your data.<br><br>If toto is useful, I accept tips: ⚙️ Settings → ☕ Support toto`;
-            out.appendChild(d);
-          }
-        }
-        if (isMommaMode()) {
-          const hasSettings = ['userWho','userHow','userPronouns','userPrefs','userTreatment',
-            'persona','project','projectGoal'].some(k => settings.get(k));
-          if (pairs === 1 && !hasKey && !hasSettings) appendMsg('assistant',
-            `👋 Hey! Fill in ⚙️ Settings → your name, who you are, how you think. The more you share, the better I can help. No rush — I'll be here.`);
-        } else {
-          if (!hasKey) {
-            if (pairs === 1) showPair1Nudge();
-            if (pairs === 5) showPair5Nudge();
-            if (pairs === 9) showPair9Warn();
-          }
-        }
-      }
     } catch(e) {
       if (e.name !== 'AbortError') {
         updateLastMsg(botDiv, '[error: ' + e.message + ']');
@@ -508,16 +331,12 @@ const toto = (() => {
       }
     }
 
-    // inject 📎 🗜️ ⚙️ [X/10] into skin header + click empty topbar to collapse
+    // inject 📎 🗜️ ⚙️ into skin header + click empty topbar to collapse
     const phRow = card?.querySelector('.ph-row1');
     if (phRow) {
       const ctrl = document.createElement('div');
       ctrl.style.cssText = 'display:flex;align-items:center;gap:4px;flex-shrink:0';
-      const hfCountHtml = isHFDemo()
-        ? `<span id="${config.skinId}-hf-count" style="font-size:13px;opacity:0.55;padding-right:2px">${isMommaMode() ? '∞' : getHFPairs() + '/' + HF_PAIR_LIMIT}</span>`
-        : '';
       ctrl.innerHTML =
-        hfCountHtml +
         `<button class="toto-btn" title="Attach file"      onclick="settings.attachFile()">📎</button>` +
         `<button class="toto-btn" title="Compress history" onclick="toto.compressHistory()">🗜️</button>` +
         `<button class="toto-btn" title="Settings"         onclick="settings.toggle()">⚙️</button>`;
@@ -529,15 +348,15 @@ const toto = (() => {
       });
     }
 
-    setJewel('on'); // always green in toto
-    showExecSummary(); // always-visible injection at top of chat
+    setJewel('on');     // always green in toto
+    showExecSummary();  // always-visible injection at top of chat
   }
 
   // ── mountToggle — shared input reveal utility ──────────────────────────────
-  // toggleId:    the button/icon element id
-  // inputWrapId: the element to show/hide
-  // focusId:     optional — element to focus when opened
-  // displayValue: css display value when open (default 'flex', use 'block' for absolute panels)
+  // toggleId:     the button/icon element id
+  // inputWrapId:  the element to show/hide
+  // focusId:      optional — element to focus when opened
+  // displayValue: css display value when open (default 'flex')
   function mountToggle({ toggleId, inputWrapId, focusId, displayValue = 'flex' }) {
     const toggleEl  = document.getElementById(toggleId);
     const inputWrap = document.getElementById(inputWrapId);
@@ -559,10 +378,10 @@ const toto = (() => {
   }
 
   // ── mountResize — shared slider resize utility ─────────────────────────────
-  // sliderId: the drag handle element id
-  // topId:    the output/messages element id (height controlled by drag)
-  // minTop:   minimum px for top element   (default 60)
-  // minBottom:minimum px for bottom element (default 60)
+  // sliderId:  the drag handle element id
+  // topId:     the output/messages element id (height controlled by drag)
+  // minTop:    minimum px for top element    (default 60)
+  // minBottom: minimum px for bottom element (default 60)
   function mountResize({ sliderId, topId, minTop = 60, minBottom = 60 }) {
     const sliderEl = document.getElementById(sliderId);
     const topEl    = document.getElementById(topId);
@@ -595,6 +414,6 @@ const toto = (() => {
   }
 
   return { mount, mountResize, mountToggle, setJewel, appendMsg, updateLastMsg, compressHistory,
-           showExecSummary, updateHFCounter,
+           showExecSummary,
            send: doSend, clearHistory: () => { _history = []; saveHistory(); if (_skin) { const out = $(_skin.msgsId); if (out) out.innerHTML = ''; showExecSummary(); } } };
 })();

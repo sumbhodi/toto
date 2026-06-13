@@ -1,16 +1,18 @@
-const CACHE = 'toto-v3';
+// service-worker.js — toto · offline shell cache (PWA)
+// relative paths so it works at any base: github pages subpath, ozhunga, or root.
+
+const CACHE = 'toto-v4';
 const SHELL = [
-  '/',
-  '/index.html',
-  '/chat.js',
-  '/settings.js',
-  '/icons/home.png'
+  './',
+  './index.html',
+  './models.js',
+  './chat.js',
+  './settings.js',
+  './icons/home.png'
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(SHELL))
-  );
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
   self.skipWaiting();
 });
 
@@ -24,7 +26,7 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // only handle same-origin GET requests
+  // only same-origin GET — model API calls are cross-origin and pass straight through
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;

@@ -1,0 +1,12 @@
+# os
+.DS_Store
+._*
+
+# editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# deps (none — static site)
+node_modules/

@@ -11,19 +11,36 @@ const settings = (() => {
   const set = (key, val) => localStorage.setItem(K[key] || 'toto_' + key, val);
 
   function getAuth() {
-    if (window.location.hostname.endsWith('.hf.space')) {
-      return { tier: 'hf', key: '', url: '' };
-    }
     const tier = get('authTier') || 'github';
     const keyMap = { github: get('githubPat'), anthropic: get('anthropicKey'), openai: get('openaiKey'), local: '' };
     return { tier, key: keyMap[tier] || '', url: get('localUrl') || 'http://localhost:11434' };
   }
 
+  // is this model id actually reachable with the keys we have?
+  function isServable(m) {
+    if (!m) return false;
+    if (m.includes(':')) { const pid = m.split(':')[0]; return !!get(pid + 'Key'); }
+    const tier = get('authTier') || 'github';
+    if (tier === 'local') return true;
+    return !!({ github: get('githubPat'), anthropic: get('anthropicKey'), openai: get('openaiKey') }[tier]);
+  }
+
   function getModel() {
-    if (window.location.hostname.endsWith('.hf.space')) {
-      return get('hfModel') || defaultModel('hf');
-    }
-    return get('model') || defaultModel(getAuth().tier);
+    const m = get('model');
+    if (m && isServable(m)) return m;
+    // stored pick isn't reachable — prefer any provider we have a key for
+    const keyed = BYOK_PROVIDERS.find(p => get(p.id + 'Key'));
+    if (keyed) return keyed.id + ':' + keyed.models[0].id;
+    return m || defaultModel(getAuth().tier);
+  }
+
+  // ── key gate — toto won't chat until a key (or Local) is configured ─────────
+  // the key lives in localStorage only. it never touches a server.
+  function hasUsableKey() {
+    const tier = get('authTier') || 'github';
+    if (tier === 'local') return true;
+    const direct = { github: get('githubPat'), anthropic: get('anthropicKey'), openai: get('openaiKey') }[tier];
+    return !!direct || BYOK_PROVIDERS.some(p => get(p.id + 'Key'));
   }
 
   function getSystemPrompt() {
@@ -211,42 +228,36 @@ const settings = (() => {
 
   // ── interface panel HTML ────────────────────────────────────────────────────
   function interfaceHTML() {
-    const onHF       = window.location.hostname.endsWith('.hf.space');
-    const tier       = onHF ? 'hf' : (get('authTier') || 'github');
+    const tier       = get('authTier') || 'github';
     const skin       = get('skin') || 'beach';
     const skins      = ['beach','neo','analog','historian','phone'];
-    const hfModelId  = get('hfModel') || MODELS.hf[0]?.id || '';
-    const modelId    = onHF ? hfModelId : getModel();
-    const tierModels = onHF ? MODELS.hf : (MODELS[tier] || []);
+    const modelId    = getModel();
+    const tierModels = MODELS[tier] || [];
 
-    const authSection = onHF
-      ? `<div class="sg-row">
-           <label>Auth</label>
-           <div class="sg-hint" style="padding:4px 0">Hugging Face free tier · no key needed</div>
-         </div>`
-      : `<div class="sg-row">
-           <label>Auth</label>
-           <select id="sg-tier" onchange="settings.onTierChange(this.value)">
-             <option value="github"    ${tier==='github'   ?'selected':''}>GitHub Models (free)</option>
-             <option value="anthropic" ${tier==='anthropic'?'selected':''}>BYOK — Anthropic</option>
-             <option value="openai"    ${tier==='openai'   ?'selected':''}>BYOK — OpenAI</option>
-             <option value="local"     ${tier==='local'    ?'selected':''}>Local (Ollama · LM Studio · MLX)</option>
-           </select>
+    const authSection =
+      `<div class="sg-row">
+         <label>Auth</label>
+         <select id="sg-tier" onchange="settings.onTierChange(this.value)">
+           <option value="github"    ${tier==='github'   ?'selected':''}>GitHub Models (free)</option>
+           <option value="anthropic" ${tier==='anthropic'?'selected':''}>BYOK — Anthropic</option>
+           <option value="openai"    ${tier==='openai'   ?'selected':''}>BYOK — OpenAI</option>
+           <option value="local"     ${tier==='local'    ?'selected':''}>Local (Ollama · LM Studio · MLX)</option>
+         </select>
+       </div>
+       <div class="sg-row" id="sg-key-row" ${tier==='local'?'style="display:none"':''}>
+         <label>${tier==='anthropic'?'Anthropic key':tier==='openai'?'OpenAI key':'GitHub PAT'}</label>
+         <input id="sg-key" type="password" placeholder="paste key…"
+           value="${tier==='anthropic'?get('anthropicKey'):tier==='openai'?get('openaiKey'):get('githubPat')}"
+           onchange="settings.onKeyChange(this.value)">
+       </div>
+       <div class="sg-row" id="sg-url-row" ${tier!=='local'?'style="display:none"':''}>
+         <label>Local server URL</label>
+         <div class="sg-presets">
+           ${LOCAL_PRESETS.map(p => `<button class="sg-preset" onclick="settings.onUrlPreset('${p.url}')">${p.label}</button>`).join('')}
          </div>
-         <div class="sg-row" id="sg-key-row" ${tier==='local'?'style="display:none"':''}>
-           <label>${tier==='anthropic'?'Anthropic key':tier==='openai'?'OpenAI key':'GitHub PAT'}</label>
-           <input id="sg-key" type="password" placeholder="paste key…"
-             value="${tier==='anthropic'?get('anthropicKey'):tier==='openai'?get('openaiKey'):get('githubPat')}"
-             onchange="settings.onKeyChange(this.value)">
-         </div>
-         <div class="sg-row" id="sg-url-row" ${tier!=='local'?'style="display:none"':''}>
-           <label>Local server URL</label>
-           <div class="sg-presets">
-             ${LOCAL_PRESETS.map(p => `<button class="sg-preset" onclick="settings.onUrlPreset('${p.url}')">${p.label}</button>`).join('')}
-           </div>
-           <input id="sg-url" type="text" placeholder="http://localhost:11434"
-             value="${get('localUrl')}" onchange="settings.onUrlChange(this.value)">
-         </div>`;
+         <input id="sg-url" type="text" placeholder="http://localhost:11434"
+           value="${get('localUrl')}" onchange="settings.onUrlChange(this.value)">
+       </div>`;
 
     const byokGroups = BYOK_PROVIDERS
       .filter(p => get(p.id + 'Key'))
@@ -258,11 +269,11 @@ const settings = (() => {
       </optgroup>`).join('');
 
     const modelSection = `<div class="sg-row">
-      <label>Model ${(!onHF && tier==='local')?'<button class="sg-discover" onclick="settings.discoverModels()">↻ discover</button>':''}</label>
-      ${(!onHF && tier==='local')
+      <label>Model ${tier==='local'?'<button class="sg-discover" onclick="settings.discoverModels()">↻ discover</button>':''}</label>
+      ${tier==='local'
         ? `<input id="sg-model-input" type="text" placeholder="model name e.g. llama3.2"
              value="${modelId}" onchange="settings.onModelChange(this.value)">`
-        : `<select id="sg-model" onchange="${onHF?'settings.onHFModelChange':'settings.onModelChange'}(this.value)">
+        : `<select id="sg-model" onchange="settings.onModelChange(this.value)">
              ${tierModels.map(m => `<option value="${m.id}" ${m.id===modelId?'selected':''}>${m.name}</option>`).join('')}
              ${byokGroups}
            </select>`
@@ -313,7 +324,7 @@ const settings = (() => {
             <a class="sg-byok-link" href="${p.url}" target="_blank" rel="noopener">Sign up ↗</a>
             <input type="password" class="sg-byok-input" placeholder="${p.placeholder}"
               value="${get(p.id+'Key')}"
-              oninput="settings.set('${p.id}Key', this.value)">
+              oninput="settings.onByokKey('${p.id}', this.value)">
           </div>`).join('')}
         </div>
 
@@ -505,19 +516,28 @@ const settings = (() => {
   }
 
   function openDrawer() {
+    const locked = !hasUsableKey();
+    if (locked) _activeTab = 'interface';   // send them straight to the keys
     const d = document.getElementById('settings-drawer');
+    const gate = locked
+      ? `<div style="background:rgba(126,255,212,0.08);border:1px solid rgba(126,255,212,0.25);color:#cfe;border-radius:6px;padding:12px;margin:8px;font-size:15px;line-height:1.5">
+           🔑 <strong>Add a key to start.</strong><br>
+           Pick a free provider below and paste its key — or switch Auth to Local.
+           Your key is saved only in this browser. toto never sees it.
+         </div>`
+      : '';
     d.innerHTML =
       `<button onclick="settings.toggle()" style="position:sticky;top:0;float:right;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#bbb;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:18px;margin:8px 8px 0 0;z-index:10">✕</button>` +
-      drawerHTML();
+      gate + drawerHTML();
     d.classList.add('open');
     _backdrop().style.display = 'block';
   }
   function closeDrawer() {
+    if (!hasUsableKey()) return;   // stuck open until a key (or Local) is set
     document.getElementById('settings-drawer').classList.remove('open');
     const bd = document.getElementById('sg-backdrop');
     if (bd) bd.style.display = 'none';
     toto.showExecSummary();
-    toto.updateHFCounter();
   }
   function toggle() {
     const d = document.getElementById('settings-drawer');
@@ -559,7 +579,7 @@ const settings = (() => {
     }
   }
   function onModelChange(val) { set('model', val); }
-  function onHFModelChange(val) { set('hfModel', val); }
+  function onByokKey(pid, val) { set(pid + 'Key', val); }
   function onField(key, val) { set(key, val); }
   function clearHistory() { toto.clearHistory(); closeDrawer(); }
 
@@ -597,27 +617,18 @@ const settings = (() => {
     inp.click();
   }
 
-  // ── scrollToBYOK — open settings, switch to interface tab, scroll to BYOK ──
-  function scrollToBYOK() {
-    openDrawer();
-    showTab('interface');
-    setTimeout(() => {
-      const el = document.getElementById('sg-byok-section');
-      if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    }, 350);
-  }
-
   // ── init ────────────────────────────────────────────────────────────────────
   function init() {
     const skin = get('skin') || 'beach';
     loadSkin(skin);
     const savedSize = get('fontSize');
     if (savedSize) setFontSize(savedSize);
+    if (!hasUsableKey()) openDrawer();   // stuck open until keyed
   }
 
-  return { get, set, getAuth, getModel, getSystemPrompt, toggle, openDrawer, showTab, scrollToBYOK, init,
-           onSkinChange, onTierChange, onKeyChange, onUrlChange, onUrlPreset,
-           onModelChange, onHFModelChange, onField, clearHistory, loadSkin, attachFile, discoverModels,
+  return { get, set, getAuth, getModel, getSystemPrompt, hasUsableKey, toggle, openDrawer, showTab, init,
+           onSkinChange, onTierChange, onKeyChange, onByokKey, onUrlChange, onUrlPreset,
+           onModelChange, onField, clearHistory, loadSkin, attachFile, discoverModels,
            setFontSize, stepFontSize,
            attachProjectFile, removeProjectFile, getProjectFiles };
 })();
